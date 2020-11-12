@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import './Header.scss'
+import s from './Header.module.scss'
 export const Header = () => {
     const [title]=useState('wordBook')
+    console.log(s,123)
     return (
-        <div className='Header-title' >{title}</div>
+        <div className={s.title} >{title}</div>
     )
 }
