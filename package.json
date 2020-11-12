@@ -1,0 +1,37 @@
+{
+  "name": "electron-starter",
+  "version": "0.0.1",
+  "description": "Electron starter",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron-webpack dev",
+    "compile": "electron-webpack",
+    "dist": "yarn compile && electron-builder",
+    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null",
+    "dist:all": "yarn run dist --x64 -wml",
+    "dist:win": "yarn run dist --x64 -w",
+    "dist:mac": "yarn run dist -m",
+    "dist:linux": "yarn run dist -l"
+  },
+  "dependencies": {
+    "antd": "3.x",
+    "source-map-support": "^0.5.16"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.26",
+    "@types/react-dom": "^16.9.5",
+    "electron": "8.2.0",
+    "electron-builder": "22.4.1",
+    "electron-webpack": "^2.7.4",
+    "electron-webpack-eslint": "^5.1.0",
+    "electron-webpack-ts": "^4.0.0",
+    "eslint-plugin-react": "^7.19.0",
+    "node-sass": "^4.13.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-hot-loader": "4.12.20",
+    "sass-loader": "^8.0.2",
+    "typescript": "^3.8.3",
+    "webpack": "4.42.1"
+  }
+}
