@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { App } from './components/App';
+import { AppRouter } from '@/Router/Router';
 
 import './index.scss';
 
-ReactDOM.render(<App />, document.getElementById('app'));
+ReactDOM.render(<AppRouter />, document.getElementById('app'));

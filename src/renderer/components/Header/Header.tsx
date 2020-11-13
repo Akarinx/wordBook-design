@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import s from './Header.module.scss'
-export const Header = () => {
+import {Link} from 'react-router-dom'
+export const Header:React.FC = () => {
     const [title]=useState('wordBook')
-    console.log(s,123)
     return (
-        <div className={s.title} >{title}</div>
+        <div className={s.title} >
+          {title}
+          <Link to="/">to/</Link>
+        </div>
     )
 }
