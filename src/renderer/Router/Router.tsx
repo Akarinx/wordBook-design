@@ -1,11 +1,12 @@
 import React, { useReducer, Dispatch } from 'react';
-import { HashRouter as Router, Switch, Route } from 'react-router-dom'
-import { App } from '@/components/App'
-import { WrappedNormalLoginForm } from '@/components/Login'
+import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
 import s from './App.module.scss'
 import { reducer, context } from '@/store/reducer'
 import { initstate } from '@/store/state'
 import { IAction } from '@/store/action'
+import router from './router'
+import { Notfound } from '@/components/404';
+
 const isPromise = obj => {
   return (
     !!obj &&
@@ -28,13 +29,28 @@ const middleware = (dispatch: Dispatch<any>) => {
 
 export const AppRouter: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initstate)
+  const token = state.token
   return (
     <div className={s.App}>
       <context.Provider value={{ state, dispatch: middleware(dispatch) }}>
         <Router>
           <Switch>
-            <Route exact path="/" component={App} />
-            <Route path="/login" component={WrappedNormalLoginForm} />
+            {
+              router.map((item, index) => {
+                return (
+                  <Route key={index} path={item.path} exact render={props =>
+                    (
+                      !item.auth ? (<item.component {...props} />) : (token ? <item.component {...props} /> :
+                        <Redirect to={{
+                          pathname: '/login',
+                          state: { from: props.location }
+                        }} />
+                      )
+                    )} />
+                )
+              })
+            }
+            <Route component={Notfound} />
           </Switch>
         </Router>
       </context.Provider>

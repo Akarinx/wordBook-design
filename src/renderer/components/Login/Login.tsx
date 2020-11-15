@@ -8,7 +8,7 @@ export interface LoginProps {
 
 }
 
-export const Login: React.FC<LoginProps> = () => {
+export const Logtest: React.FC<LoginProps> = () => {
   const { state, dispatch }: IContext = useContext(context)
   const handleSyncClick = async () => {
     const count = await wait()
@@ -30,7 +30,7 @@ export const Login: React.FC<LoginProps> = () => {
   );
 }
 
-const Log: React.FC<any> = (props) => {
+const LoginMain: React.FC<any> = (props) => {
   const { getFieldDecorator } = props.form
   const handleSubmit = e => {
     e.preventDefault();
@@ -40,6 +40,7 @@ const Log: React.FC<any> = (props) => {
       }
     });
   };
+  console.log(props)
   return (<Form onSubmit={handleSubmit} className={s.login + ' login-form'}>
     <Form.Item>
       {getFieldDecorator('username', {
@@ -67,9 +68,6 @@ const Log: React.FC<any> = (props) => {
         valuePropName: 'checked',
         initialValue: true,
       })(<Checkbox>Remember me</Checkbox>)}
-      <a className="login-form-forgot" href="">
-        Forgot password
-    </a>
       <Button type="primary" htmlType="submit" className="login-form-button">
         Log in
     </Button>
@@ -77,6 +75,5 @@ const Log: React.FC<any> = (props) => {
   </Form>
   );
 }
-export const WrappedNormalLoginForm = Form.create({ name: 'normal_login' })(Log);
+export const Login = Form.create({ name: 'normal_login' })(LoginMain);
 
-export default Log;
