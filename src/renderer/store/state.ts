@@ -1,11 +1,11 @@
 export interface IInitstate {
   point: number,
-  token: string
+  token: string | null
 }
 
 
 export const initstate: IInitstate = {
   point: 0,
-  token: ''
+  token: localStorage.getItem('token')
 }
 

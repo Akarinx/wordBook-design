@@ -5,7 +5,6 @@ import { remote } from 'electron'
 import { Link, match } from 'react-router-dom'
 import "./App.module.scss"
 
-let isInto = true
 
 interface IAppProps {
   history: any;
@@ -15,10 +14,6 @@ interface IAppProps {
 }
 
 export const App: React.FC<IAppProps> = (props: IAppProps) => {
-  if (isInto && !localStorage.getItem('id')) {
-    props.history.push('/login')
-    isInto = false
-  }
   const [file, setFile] = useState('')
   const readTxtFileData = async () => {
     const res = await remote.dialog.showOpenDialog({

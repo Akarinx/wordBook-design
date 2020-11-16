@@ -1,12 +1,19 @@
 import React, { useCallback, useContext } from 'react';
-import { Button, Checkbox, Form, Icon, Input } from 'antd'
+import { Button, Checkbox, Form, Icon, Input, message } from 'antd'
 import { context, IContext } from '@/store/reducer'
 import s from './Login.module.scss'
 
 
-export interface LoginProps {
+interface LoginProps {
 
 }
+
+interface LoginValue {
+  username: string;
+  password: string;
+  remember: boolean;
+}
+
 
 export const Logtest: React.FC<LoginProps> = () => {
   const { state, dispatch }: IContext = useContext(context)
@@ -32,11 +39,21 @@ export const Logtest: React.FC<LoginProps> = () => {
 
 const LoginMain: React.FC<any> = (props) => {
   const { getFieldDecorator } = props.form
+  const wait = () => {
+    return new Promise(res => {
+      setTimeout(() => {
+        res(1)
+      }, 2000)
+    })
+  }
   const handleSubmit = e => {
     e.preventDefault();
-    props.form.validateFields((err, values) => {
+    props.form.validateFields(async (err, values: LoginValue) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        const { username, password, remember } = values
+        await wait()
+        message.success('登陆成功', 1)
+        props.history.push('/')
       }
     });
   };
@@ -70,7 +87,7 @@ const LoginMain: React.FC<any> = (props) => {
       })(<Checkbox>Remember me</Checkbox>)}
       <Button type="primary" htmlType="submit" className="login-form-button">
         Log in
-    </Button>
+      </Button>
     </Form.Item>
   </Form>
   );

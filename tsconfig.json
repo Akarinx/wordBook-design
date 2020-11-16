@@ -2,12 +2,18 @@
   "extends": "./node_modules/electron-webpack/tsconfig-base.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["renderer/*"],
-      "common/*": ["common/*"]
+      "@/*": [
+        "renderer/*"
+      ],
+      "common/*": [
+        "common/*"
+      ]
     },
     "baseUrl": "src/",
     "jsx": "react",
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": false,
     "noImplicitThis": false,
@@ -24,6 +30,11 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["./src"],
-  "exclude": ["node_modules"]
+  "include": [
+    "./src"
+  ],
+  "exclude": [
+    "node_modules",
+    "Router"
+  ]
 }
