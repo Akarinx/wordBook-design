@@ -3,7 +3,7 @@ import { Button } from 'antd'
 import fs from 'fs'
 import { remote } from 'electron'
 import { Link, match } from 'react-router-dom'
-import "./App.module.scss"
+import s from "./App.module.scss"
 
 
 interface IAppProps {
@@ -28,11 +28,14 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
     })
   }
   return (
-    <div>
+    <div className={s.Wrapper} >
       <Link to="/login">toLogin</Link>
       <div>Hello World!</div>
-      <Button type='danger' onClick={readTxtFileData}>读文件内容</Button>
-      <Button type='dashed' onClick={useCallback(() => { setFile('') }, [])}>refresh</Button>
+      <div>
+        <Button type='danger' onClick={readTxtFileData}>读文件内容</Button>
+        <Button type='dashed' onClick={useCallback(() => { setFile('') }, [])}>refresh</Button>
+      </div>
+
       <div dangerouslySetInnerHTML={{ __html: file }} />
     </div>
   )

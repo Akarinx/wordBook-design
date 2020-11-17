@@ -31,7 +31,6 @@ const middleware = (dispatch: Dispatch<ActionType>) => {
 export const AppRouter: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initstate)
   const token = state.token
-  console.log(token, 123)
   return (
     <div className={s.App}>
       <context.Provider value={{ state, dispatch: middleware(dispatch) }}>
@@ -43,12 +42,7 @@ export const AppRouter: React.FC = () => {
                   return (
                     <Route key={index} path={item.path} exact render={props =>
                       (
-                        !item.auth ? (<item.component {...props} />) : (token ? <item.component {...props} /> :
-                          <Redirect to={{
-                            pathname: '/',
-                            state: { from: props.location }
-                          }} />
-                        )
+                        <item.component {...props} />
                       )} />
                   )
                 })
