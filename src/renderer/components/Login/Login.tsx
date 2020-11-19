@@ -1,6 +1,5 @@
-import React, { useCallback, useContext } from 'react';
+import React from 'react';
 import { Button, Checkbox, Form, Icon, Input, message } from 'antd'
-import { context, IContext } from '@/store/reducer'
 import s from './Login.module.scss'
 import { ipcRenderer } from 'electron';
 

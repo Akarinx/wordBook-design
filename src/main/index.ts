@@ -23,8 +23,8 @@ function createLoginWindow() {
     maxHeight: 360,
     maxWidth: 300,
     useContentSize: true,
-    frame: false, // 无边框
-    transparent: true, // 透明
+    frame: true, // 无边框
+    transparent: false, // 透明
     // fullscreen: true, // 全屏,
     resizable: false,
     maximizable: false,
@@ -107,6 +107,7 @@ function createMainWindow() {
   window.on('closed', () => {
     mainWindow = null
   })
+  mainWindow = window
 }
 
 //设置托盘菜单
@@ -175,7 +176,7 @@ if (!singleLog) {
   });
 
   app.on("activate", () => {
-    if (loginWindow === null) {
+    if (mainWindow === null) {
       createLoginWindow();
     }
   });
@@ -184,11 +185,16 @@ if (!singleLog) {
     if (!mainWindow) {
       createMainWindow()
     }
-
     if (loginWindow) {
       loginWindow.destroy()
     }
+  })
 
+  ipcMain.on('logout', () => {
+    if (mainWindow) {
+      mainWindow.destroy()
+      createLoginWindow()
+    }
   })
 }
 

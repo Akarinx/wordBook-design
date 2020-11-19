@@ -30,7 +30,6 @@ const middleware = (dispatch: Dispatch<ActionType>) => {
 
 export const AppRouter: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initstate)
-  const token = state.token
   return (
     <div className={s.App}>
       <context.Provider value={{ state, dispatch: middleware(dispatch) }}>
