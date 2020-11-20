@@ -23,8 +23,8 @@ function createLoginWindow() {
     maxHeight: 360,
     maxWidth: 300,
     useContentSize: true,
-    frame: true, // 无边框
-    transparent: false, // 透明
+    frame: false, // 无边框
+    transparent: true, // 透明
     // fullscreen: true, // 全屏,
     resizable: false,
     maximizable: false,
@@ -105,6 +105,7 @@ function createMainWindow() {
     }
   })
   window.on('closed', () => {
+    console.log('ok')
     mainWindow = null
   })
   mainWindow = window
