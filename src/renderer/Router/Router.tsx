@@ -39,7 +39,7 @@ export const AppRouter: React.FC = () => {
               {
                 router.map((item, index) => {
                   return (
-                    <Route key={index} path={item.path} exact render={props =>
+                    <Route key={index} path={item.path} exact={item.exact} render={props =>
                       (
                         <item.component {...props} />
                       )} />

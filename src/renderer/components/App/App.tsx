@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Icon, Input, Layout, Menu } from 'antd'
 import fs from 'fs'
-import { BrowserWindow, IpcRenderer, ipcRenderer, remote } from 'electron'
+import { BrowserWindow, ipcRenderer, remote } from 'electron'
 import { Link, match } from 'react-router-dom'
+import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
 import s from "./App.module.scss"
-
+import axios from "axios"
 
 interface IAppProps {
   history: any;
@@ -13,12 +14,8 @@ interface IAppProps {
   staticContext?: any;
 }
 
-
-export const App: React.FC<IAppProps> = (props: IAppProps) => {
+const TestComponent: React.FC = () => {
   const [file, setFile] = useState('')
-  const [isMaximized, setIsMaximized] = useState(false)
-  const { Header, Sider, Content, Footer } = Layout
-  const { SubMenu } = Menu
   const readTxtFileData = async () => {
     const res = await remote.dialog.showOpenDialog({
       title: '选择txt',
@@ -31,9 +28,53 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
       }
     })
   }
+  return (
+    <div className={s.Wrapper} >
+      <div>
+        <Button type='danger' onClick={readTxtFileData}>读文件内容</Button>
+      </div>
 
-  const handleLogout = useCallback(() => {
-    ipcRenderer.send('logout')
+      <div dangerouslySetInnerHTML={{ __html: file }} />
+    </div>
+  )
+}
+
+const User: React.FC = (props) => {
+  return (
+    <div>
+      <Link to="/">123</Link>
+    </div>
+  )
+}
+
+
+export const App: React.FC<IAppProps> = (props: IAppProps) => {
+  const { history } = props
+  const [dailyquote, setDailyquote] = useState('')
+  const [dailyquoteTranslated, setDailyquoteTranslated] = useState('')
+  const [isMaximized, setIsMaximized] = useState(false)
+  const { Header, Sider, Content, Footer } = Layout
+  const { SubMenu } = Menu
+
+  useEffect(() => {
+    (async () => {
+      let res
+      try {
+        res = await axios.get('http://localhost:3001/api/dailyquote')
+      } catch (e) {
+        res = {
+          data: {
+            data: {
+              content: 'fail',
+              translation: '获取失败'
+            }
+          }
+        }
+      }
+
+      setDailyquote(res.data.data.content)
+      setDailyquoteTranslated(res.data.data.translation)
+    })()
   }, [])
 
   const handleWinControl = useCallback((action: string) => {
@@ -61,6 +102,18 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
         break;
     }
   }, [])
+
+  const switchPath = useCallback((props: {
+    key: string;
+    keyPath: Array<string>;
+  }) => {
+    const { keyPath } = props
+    const path = keyPath.reverse().reduce((prev, next) => {
+      return prev + '/' + next
+    })
+    history.push('/' + path)
+  }, [])
+
   return (
     <div className={s.main} >
       <Sider>
@@ -68,51 +121,36 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
           wordBook
         </div>
         <Menu
-          onClick={(prop) => { console.log(prop) }}
+          onClick={switchPath}
           mode="inline"
           style={{ height: '100%', borderRight: 0 }}
         >
           <SubMenu
-            key="sub1"
+            key="user"
             title={
               <span>
                 <Icon type="user" />
-                  subnav 1
+                  用户中心
                 </span>
             }
           >
-            <Menu.Item key="1">option1</Menu.Item>
-            <Menu.Item key="2">option2</Menu.Item>
-            <Menu.Item key="3">option3</Menu.Item>
-            <Menu.Item key="4">option4</Menu.Item>
+            <Menu.Item key="user">设置个人资料</Menu.Item>
+            <Menu.Item key="progress">学习进度</Menu.Item>
+            <Menu.Item key="logout">退出登陆</Menu.Item>
+            <Menu.Item key="setting">设置</Menu.Item>
           </SubMenu>
           <SubMenu
-            key="sub2"
+            key="toLearn"
             title={
               <span>
                 <Icon type="laptop" />
-                  subnav 2
+                  开始学习
                 </span>
             }
           >
-            <Menu.Item key="5">option5</Menu.Item>
-            <Menu.Item key="6">option6</Menu.Item>
-            <Menu.Item key="7">option7</Menu.Item>
-            <Menu.Item key="8">option8</Menu.Item>
-          </SubMenu>
-          <SubMenu
-            key="sub3"
-            title={
-              <span>
-                <Icon type="notification" />
-                  subnav 3
-                </span>
-            }
-          >
-            <Menu.Item key="9">option9</Menu.Item>
-            <Menu.Item key="10">option10</Menu.Item>
-            <Menu.Item key="11">option11</Menu.Item>
-            <Menu.Item key="12">option12</Menu.Item>
+            <Menu.Item key="reading">阅读模式</Menu.Item>
+            <Menu.Item key="words">题库模式</Menu.Item>
+            <Menu.Item key="loading">导入题库</Menu.Item>
           </SubMenu>
         </Menu>
       </Sider>
@@ -135,16 +173,11 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
           </div>
         </Header>
         <Content>
-          <div className={s.Wrapper} >
-            <Button type="dashed" onClick={handleLogout}>退出登陆</Button>
-            <div>Hello World!</div>
-            <div>
-              <Button type='danger' onClick={readTxtFileData}>读文件内容</Button>
-              <Button type='dashed' onClick={useCallback(() => { setFile('') }, [])}>refresh</Button>
-            </div>
+          <Switch>
+            <Route path="/" exact component={TestComponent} />
+            <Route path="/user/user" exact component={User} />
+          </Switch>
 
-            <div dangerouslySetInnerHTML={{ __html: file }} />
-          </div>
         </Content>
         <Footer>Footer</Footer>
       </Layout>

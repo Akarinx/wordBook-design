@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, Checkbox, Form, Icon, Input, message } from 'antd'
 import s from './Login.module.scss'
 import { ipcRenderer } from 'electron';
+import axios from 'axios';
 
 
 interface LoginProps {
@@ -14,27 +15,57 @@ interface LoginValue {
   remember: boolean;
 }
 
+
 const LoginMain: React.FC<any> = (props) => {
-  const { getFieldDecorator } = props.form
-  const wait = () => {
+  const { getFieldDecorator, validateFields, resetFields } = props.form
+
+  const wait = (time) => {
     return new Promise(res => {
       setTimeout(() => {
         res(1)
-      }, 2000)
+      }, time)
     })
   }
+
   const handleSubmit = e => {
     e.preventDefault();
-    props.form.validateFields(async (err, values: LoginValue) => {
+    validateFields(async (err, values: LoginValue) => {
       if (!err) {
         const { username, password, remember } = values
-        message.success('登陆成功', 1)
-        await wait()
-
-        ipcRenderer.send('openMainWindow')
+        const res = await axios.post('http://localhost:3001/api/login', {
+          userName: username,
+          password
+        })
+        if (res.data.msg !== '0') {
+          message.success('登陆成功', 1)
+          localStorage.setItem('token', res.data.data)
+          await wait(2000)
+          ipcRenderer.send('openMainWindow')
+        } else {
+          message.warn('账号或密码错误')
+        }
       }
     });
   };
+
+  const handleRegister = () => {
+    props.form.validateFields(async (err, values: LoginValue) => {
+      if (!err) {
+        const { username, password, remember } = values
+        const res = await axios.post('http://localhost:3001/api/register', {
+          userName: username,
+          password
+        })
+        if (res.data.msg !== '1') {
+          message.warn('注册失败，该账户已被注册')
+          resetFields()
+        } else {
+          message.success('注册成功', 1)
+        }
+      }
+    });
+  }
+
   return (
     <Form onSubmit={handleSubmit} className={s.login + ' login-form'}>
       <Form.Item>
@@ -62,10 +93,13 @@ const LoginMain: React.FC<any> = (props) => {
         {getFieldDecorator('remember', {
           valuePropName: 'checked',
           initialValue: true,
-        })(<Checkbox>Remember me</Checkbox>)}
-        <Button type="primary" htmlType="submit" className="login-form-button">
-          Log in
-      </Button>
+        })(<Checkbox>记住我</Checkbox>)}
+        <Button type="primary" htmlType="submit" >
+          登陆
+        </Button>
+        <Button type="dashed" onClick={useCallback(() => handleRegister(), [])} >
+          注册
+        </Button>
       </Form.Item>
     </Form>
   );
