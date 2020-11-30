@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { DragEvent, useCallback, useEffect, useState } from 'react';
 import { Button, Icon, Input, Layout, Menu } from 'antd'
 import fs from 'fs'
-import { BrowserWindow, ipcRenderer, remote } from 'electron'
+import { BrowserWindow, remote } from 'electron'
 import { Link, match } from 'react-router-dom'
-import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
+import { Switch, Route } from 'react-router-dom'
 import s from "./App.module.scss"
+import classnames from 'classnames'
 import axios from "axios"
 
 interface IAppProps {
@@ -16,6 +17,9 @@ interface IAppProps {
 
 const TestComponent: React.FC = () => {
   const [file, setFile] = useState('')
+  const [dailyquote, setDailyquote] = useState('')
+  const [dailyquoteTranslated, setDailyquoteTranslated] = useState('')
+  const [isDragged, setIsDragged] = useState(false)
   const readTxtFileData = async () => {
     const res = await remote.dialog.showOpenDialog({
       title: '选择txt',
@@ -28,33 +32,29 @@ const TestComponent: React.FC = () => {
       }
     })
   }
-  return (
-    <div className={s.Wrapper} >
-      <div>
-        <Button type='danger' onClick={readTxtFileData}>读文件内容</Button>
-      </div>
 
-      <div dangerouslySetInnerHTML={{ __html: file }} />
-    </div>
-  )
-}
+  const handleDragOver = e => {
+    e.preventDefault()
+    setIsDragged(true)
+  }
 
-const User: React.FC = (props) => {
-  return (
-    <div>
-      <Link to="/">123</Link>
-    </div>
-  )
-}
+  const handleDragLeave = e => {
+    setIsDragged(false)
+  }
 
-
-export const App: React.FC<IAppProps> = (props: IAppProps) => {
-  const { history } = props
-  const [dailyquote, setDailyquote] = useState('')
-  const [dailyquoteTranslated, setDailyquoteTranslated] = useState('')
-  const [isMaximized, setIsMaximized] = useState(false)
-  const { Header, Sider, Content, Footer } = Layout
-  const { SubMenu } = Menu
+  const handleOnDrop = (e: DragEvent) => {
+    if (e.dataTransfer) {
+      console.log(e.dataTransfer.files[0])
+      const res = e.dataTransfer.files[0]
+      fs.readFile(res.path, 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err)
+        } else {
+          setFile(data.replace(/\n|\r\n/g, '<br/>'))
+        }
+      })
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -71,11 +71,55 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
           }
         }
       }
-
       setDailyquote(res.data.data.content)
       setDailyquoteTranslated(res.data.data.translation)
     })()
   }, [])
+
+
+
+  return (
+    <div className={s.Wrapper} >
+      <div className={s.ToolBar}>
+        <div className={s.dailySentenceWrapper}>
+          <div className={s.dailySentence}>
+            {dailyquote}
+          </div>
+          <div className={s.dailySentenceTrans}>
+            {dailyquoteTranslated}
+          </div>
+        </div>
+      </div>
+      <div className={s.middleBar}>
+        middle
+      </div>
+      <div className={classnames(s.dragBar, {
+        [s.dragOver]: isDragged
+      })}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleOnDrop} >
+        <Button type='danger' onClick={readTxtFileData}>读文件内容</Button>
+        <div dangerouslySetInnerHTML={{ __html: file }} />
+      </div>
+    </div>
+  )
+}
+
+const User: React.FC = (props) => {
+  return (
+    <div>
+      <Link to="/">123</Link>
+    </div>
+  )
+}
+
+
+export const App: React.FC<IAppProps> = (props: IAppProps) => {
+  const { history } = props
+  const [isMaximized, setIsMaximized] = useState(false)
+  const { Header, Sider, Content, Footer } = Layout
+  const { SubMenu } = Menu
 
   const handleWinControl = useCallback((action: string) => {
     const browserWindow: BrowserWindow = remote.getCurrentWindow()
@@ -114,10 +158,14 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
     history.push('/' + path)
   }, [])
 
+  const handleMainClick = useCallback(() => {
+    history.push('/')
+  }, [])
+
   return (
     <div className={s.main} >
       <Sider>
-        <div className={s.appName}>
+        <div className={s.appName} onClick={handleMainClick}>
           wordBook
         </div>
         <Menu
@@ -177,7 +225,6 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
             <Route path="/" exact component={TestComponent} />
             <Route path="/user/user" exact component={User} />
           </Switch>
-
         </Content>
         <Footer>Footer</Footer>
       </Layout>

@@ -7,6 +7,7 @@
     text-align: center;
     line-height: 50px;
     background-color: #ffe58f;
+    cursor: pointer;
     -webkit-app-region: drag;
   }
   .searchBar{
@@ -18,7 +19,6 @@
       opacity: 100;
     }
   }
-
   :global(.ant-layout-sider-children){ 
     display: flex;
     flex-direction: column 
@@ -28,9 +28,42 @@
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
+    .ToolBar{
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      text-align: center;
+      .dailySentenceWrapper{
+        display: flex;
+        flex-direction: column;
+        .dailySentence{
+          font-size: 18px;
+          font-weight: 800;
+        }
+        .dailySentenceTrans{
+          font-size: 12px;
+          font-weight: 400;
+        }
+      }
+    }
+    .middleBar{
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items:center;
+    }
+    .dragBar{
+      flex:0 0 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      &.dragOver{
+        filter: blur(0.5px);
+        background-color: pink;
+      }
+    }
   }
   
 }
