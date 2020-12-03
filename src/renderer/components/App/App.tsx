@@ -1,5 +1,5 @@
 import React, { DragEvent, useCallback, useEffect, useState } from 'react';
-import { Button, Icon, Input, Layout, Menu } from 'antd'
+import { Avatar, Button, Icon, Input, Layout, Menu } from 'antd'
 import fs from 'fs'
 import { BrowserWindow, remote } from 'electron'
 import { Link, match } from 'react-router-dom'
@@ -20,6 +20,7 @@ const TestComponent: React.FC = () => {
   const [dailyquote, setDailyquote] = useState('')
   const [dailyquoteTranslated, setDailyquoteTranslated] = useState('')
   const [isDragged, setIsDragged] = useState(false)
+  const [progress, setProgress] = useState(0)
   const readTxtFileData = async () => {
     const res = await remote.dialog.showOpenDialog({
       title: '选择txt',
@@ -33,6 +34,33 @@ const TestComponent: React.FC = () => {
     })
   }
 
+  const upload = async (formData: FormData) => {
+
+    let config = {
+      // 注意要把 contentType 设置为 multipart/form-data
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+
+      // 监听 onUploadProgress 事件
+      onUploadProgress: e => {
+        const { loaded, total } = e;
+        // 使用本地 progress 事件
+        if (e.lengthComputable) {
+          let progress = loaded / total * 100;
+          console.log(progress)
+          setProgress(progress)
+        }
+      }
+    };
+    const res = await axios.post('http://localhost:3001/api/upload', formData, config);
+    if (res.status === 200) {
+      console.log('上传完成😀');
+    }
+  }
+
+
+
   const handleDragOver = e => {
     e.preventDefault()
     setIsDragged(true)
@@ -42,19 +70,16 @@ const TestComponent: React.FC = () => {
     setIsDragged(false)
   }
 
-  const handleOnDrop = (e: DragEvent) => {
-    if (e.dataTransfer) {
-      console.log(e.dataTransfer.files[0])
-      const res = e.dataTransfer.files[0]
-      fs.readFile(res.path, 'utf-8', (err, data) => {
-        if (err) {
-          console.error(err)
-        } else {
-          setFile(data.replace(/\n|\r\n/g, '<br/>'))
-        }
-      })
-    }
+  const handleOnDrop = async event => {
+    event.preventDefault()
+    event.stopPropagation()
+    const res = event.dataTransfer.files[0]
+
+    let formdata = new FormData()
+    formdata.append('file', res)
+    upload(formdata)
   }
+
 
   useEffect(() => {
     (async () => {
@@ -91,7 +116,13 @@ const TestComponent: React.FC = () => {
         </div>
       </div>
       <div className={s.middleBar}>
-        middle
+        <div className={s.userLearningStatus}>
+
+        </div>
+        <div className={s.rowLine}></div>
+        <div className={s.userDetail}>
+          <Avatar shape="square" size="large" icon="user" src="http://localhost:3001/bb.png" />
+        </div>
       </div>
       <div className={classnames(s.dragBar, {
         [s.dragOver]: isDragged

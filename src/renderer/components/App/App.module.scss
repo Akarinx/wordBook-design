@@ -51,8 +51,19 @@
     .middleBar{
       flex: 1;
       display: flex;
-      justify-content: center;
-      align-items:center;
+      justify-content: space-between;
+      .userLearningStatus{
+        flex: 2;
+      }
+      .rowLine{
+        border: 1px solid black;
+        opacity: 50%;
+        height: 80%;
+        align-self: center;
+      }
+      .userDetail{
+        flex:1
+      }
     }
     .dragBar{
       flex:0 0 400px;

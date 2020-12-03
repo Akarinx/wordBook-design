@@ -32,17 +32,21 @@ const LoginMain: React.FC<any> = (props) => {
     validateFields(async (err, values: LoginValue) => {
       if (!err) {
         const { username, password, remember } = values
-        const res = await axios.post('http://localhost:3001/api/login', {
-          userName: username,
-          password
-        })
-        if (res.data.msg !== '0') {
-          message.success('登陆成功', 1)
-          localStorage.setItem('token', res.data.data)
-          await wait(2000)
-          ipcRenderer.send('openMainWindow')
-        } else {
-          message.warn('账号或密码错误')
+        try {
+          const res = await axios.post('http://localhost:3001/api/login', {
+            userName: username,
+            password
+          })
+          if (res.data.msg !== '0') {
+            message.success('登陆成功', 1)
+            localStorage.setItem('token', res.data.data)
+            await wait(2000)
+            ipcRenderer.send('openMainWindow')
+          } else {
+            message.warn('账号或密码错误')
+          }
+        } catch (e) {
+          message.warn('请连接网络')
         }
       }
     });
