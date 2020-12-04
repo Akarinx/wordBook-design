@@ -1,5 +1,5 @@
 import React, { DragEvent, useCallback, useEffect, useState } from 'react';
-import { Avatar, Button, Icon, Input, Layout, Menu } from 'antd'
+import { Avatar, Badge, Button, Card, Col, Icon, Input, Layout, Menu, Row, Statistic } from 'antd'
 import fs from 'fs'
 import { BrowserWindow, remote } from 'electron'
 import { Link, match } from 'react-router-dom'
@@ -7,6 +7,7 @@ import { Switch, Route } from 'react-router-dom'
 import s from "./App.module.scss"
 import classnames from 'classnames'
 import axios from "axios"
+import { CSSTransition } from 'react-transition-group'
 
 interface IAppProps {
   history: any;
@@ -21,6 +22,7 @@ const TestComponent: React.FC = () => {
   const [dailyquoteTranslated, setDailyquoteTranslated] = useState('')
   const [isDragged, setIsDragged] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [userheadHover, setUserheadHover] = useState(false)
   const readTxtFileData = async () => {
     const res = await remote.dialog.showOpenDialog({
       title: '选择txt',
@@ -119,9 +121,33 @@ const TestComponent: React.FC = () => {
         <div className={s.userLearningStatus}>
 
         </div>
-        <div className={s.rowLine}></div>
         <div className={s.userDetail}>
-          <Avatar shape="square" size="large" icon="user" src="http://localhost:3001/bb.png" />
+
+          <div className={s.userHead}>
+            <Badge count={5}>
+              <div onMouseEnter={useCallback(() => setUserheadHover(true), [])} onMouseLeave={useCallback(() => setUserheadHover(false), [])}>
+                <Avatar shape="square" size={200} icon="user" src="https://iph.href.lu/200x200?fg=666666&bg=cccccc" />
+                <CSSTransition in={userheadHover} classNames="hover" timeout={500} unmountOnExit >
+                  <div className={s.userHeadHover}>
+                    <span style={{ color: "white", fontSize: "14px" }} >拖拽上传头像</span>
+                  </div>
+                </CSSTransition>
+              </div>
+            </Badge>
+            <span>username</span>
+          </div>
+          <div className={s.userSomething}>
+            <div className={s.userActive}>
+              <Statistic
+                value={11.28}
+                precision={2}
+                valueStyle={{ color: '#3f8600' }}
+                prefix={<Icon type="arrow-up" />}
+                suffix="%"
+              />
+            </div>
+
+          </div>
         </div>
       </div>
       <div className={classnames(s.dragBar, {
@@ -139,9 +165,7 @@ const TestComponent: React.FC = () => {
 
 const User: React.FC = (props) => {
   return (
-    <div>
-      <Link to="/">123</Link>
-    </div>
+    <Link to="/">123</Link>
   )
 }
 
