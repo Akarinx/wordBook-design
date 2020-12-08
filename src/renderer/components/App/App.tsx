@@ -1,14 +1,13 @@
-import React, { DragEvent, useCallback, useEffect, useState } from 'react';
-import { Avatar, Badge, Button, Card, Col, Icon, Input, Layout, Menu, Row, Statistic } from 'antd'
+import React, { useCallback, useEffect, useState } from 'react';
+import { Avatar, Badge, Button, Empty, Icon, Input, Layout, Menu, Statistic } from 'antd'
 import fs from 'fs'
 import { BrowserWindow, remote } from 'electron'
-import { Link, match } from 'react-router-dom'
-import { Switch, Route } from 'react-router-dom'
+import { Link, match, Switch, Route } from 'react-router-dom'
 import s from "./App.module.scss"
 import classnames from 'classnames'
 import axios from "axios"
 import { CSSTransition } from 'react-transition-group'
-
+import { LearningProgress } from '../LearningProgress'
 interface IAppProps {
   history: any;
   location: any;
@@ -118,15 +117,15 @@ const TestComponent: React.FC = () => {
         </div>
       </div>
       <div className={s.middleBar}>
-        <div className={s.userLearningStatus}>
-
+        <div className={s.userLearningStatus}> {/**todolist */}
+          <Empty />
         </div>
         <div className={s.userDetail}>
 
           <div className={s.userHead}>
             <Badge count={5}>
               <div onMouseEnter={useCallback(() => setUserheadHover(true), [])} onMouseLeave={useCallback(() => setUserheadHover(false), [])}>
-                <Avatar shape="square" size={200} icon="user" src="https://iph.href.lu/200x200?fg=666666&bg=cccccc" />
+                <Avatar shape="square" size={200} icon="user" src={`http://localhost:3001/bb.png`} />   {/*todo: 按用户名查找对应路径文件 e.g.:localhost:3001/111/bb.png */}
                 <CSSTransition in={userheadHover} classNames="hover" timeout={500} unmountOnExit >
                   <div className={s.userHeadHover}>
                     <span style={{ color: "white", fontSize: "14px" }} >拖拽上传头像</span>
@@ -139,14 +138,35 @@ const TestComponent: React.FC = () => {
           <div className={s.userSomething}>
             <div className={s.userActive}>
               <Statistic
+                title={"学习进度"}
                 value={11.28}
                 precision={2}
                 valueStyle={{ color: '#3f8600' }}
                 prefix={<Icon type="arrow-up" />}
                 suffix="%"
               />
+              <Statistic
+                title={"总题数"}
+                value={11.28}
+                precision={2}
+                valueStyle={{ color: '#3f8600' }}
+                prefix={<Icon type="arrow-up" />}
+                suffix=""
+              />
+              <Statistic
+                title={"总单词数"}
+                value={11.28}
+                precision={2}
+                valueStyle={{ color: '#3f8600' }}
+                prefix={<Icon type="arrow-up" />}
+                suffix=""
+              />
             </div>
-
+            <div className={s.userSignature}>
+              <span>
+                signtest
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -279,6 +299,7 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
           <Switch>
             <Route path="/" exact component={TestComponent} />
             <Route path="/user/user" exact component={User} />
+            <Route path="/user/progress" exact component={LearningProgress} />
           </Switch>
         </Content>
         <Footer>Footer</Footer>

@@ -79,12 +79,22 @@
           }
         }
         .userSomething{
+          padding: 40px;
           flex:1;
           display:flex;
+          flex-direction: column;
           .userActive{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .userSignature{
             flex: 1;
-            align-self: center;
-            text-align: center;
+            font-size: 16px;
+            color: pink;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
           }
         }
       }
