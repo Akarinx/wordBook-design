@@ -23,6 +23,12 @@ export const reducer = (state: IInitstate, action: ActionType) => {
         point: action.payload + state.point
       }
     }
+    case "ADD_FILENAME": {
+      return {
+        ...state,
+        filename: state.fileName.push(action.payload)
+      }
+    }
     default:
       return state
   }

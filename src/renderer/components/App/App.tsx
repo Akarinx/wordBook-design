@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Avatar, Badge, Button, Empty, Icon, Input, Layout, Menu, Statistic } from 'antd'
-import fs from 'fs'
+import React, { useCallback, useEffect, useState, useContext } from 'react';
+import { context, IContext } from '@/store/reducer'
+import { Avatar, Badge, Button, Empty, Icon, Input, Layout, Menu, message, Statistic } from 'antd'
 import { BrowserWindow, remote } from 'electron'
 import { Link, match, Switch, Route } from 'react-router-dom'
 import s from "./App.module.scss"
@@ -8,6 +8,8 @@ import classnames from 'classnames'
 import axios from "axios"
 import { CSSTransition } from 'react-transition-group'
 import { LearningProgress } from '../LearningProgress'
+
+const csv = require('csvtojson');
 interface IAppProps {
   history: any;
   location: any;
@@ -15,24 +17,35 @@ interface IAppProps {
   staticContext?: any;
 }
 
-const TestComponent: React.FC = () => {
+const Home: React.FC = () => {
+  const { state, dispatch } = useContext<IContext>(context)
   const [file, setFile] = useState('')
   const [dailyquote, setDailyquote] = useState('')
   const [dailyquoteTranslated, setDailyquoteTranslated] = useState('')
   const [isDragged, setIsDragged] = useState(false)
   const [progress, setProgress] = useState(0)
   const [userheadHover, setUserheadHover] = useState(false)
+  const [isEdit, setIsEdit] = useState(false)
+  const [userSignature, setUserSignature] = useState('')
+  const handleEdit = () => {
+    if (!isEdit) {
+      setIsEdit(true)
+    }
+  }
   const readTxtFileData = async () => {
     const res = await remote.dialog.showOpenDialog({
-      title: '选择txt',
+      title: '选择csv',
     })
-    fs.readFile(res.filePaths[0], 'utf-8', (err, data) => {
-      if (err) {
-        console.error(err)
-      } else {
-        setFile(data.replace(/\n|\r\n/g, '<br/>'))
-      }
-    })
+    const filename = res.filePaths[0].split('/').pop()
+    const isSameName = state.fileName.findIndex(item => item === filename)
+    if (isSameName <= -1) {
+      filename && dispatch({ type: "ADD_FILENAME", payload: filename })
+      const jsonObj = await csv().fromFile(res.filePaths[0]);
+      console.log(jsonObj)
+    } else {
+      message.warn('文件名重复')
+    }
+
   }
 
   const upload = async (formData: FormData) => {
@@ -163,9 +176,20 @@ const TestComponent: React.FC = () => {
               />
             </div>
             <div className={s.userSignature}>
-              <span>
-                signtest
-              </span>
+              {
+                isEdit ?
+                  <Input placeholder="Basic usage" defaultValue={userSignature} onFocus={() => setIsEdit(true)} onBlur={() => { setIsEdit(false); console.log('1') }} onChange={(e) => setUserSignature(e.target.value)} />
+                  : (
+                    <span >
+                      {userSignature}
+                    </span>
+                  )
+              }
+              {
+                !isEdit &&
+                <Icon type="edit" onClick={() => handleEdit()} style={{ color: "skyblue" }} />
+              }
+
             </div>
           </div>
         </div>
@@ -176,7 +200,21 @@ const TestComponent: React.FC = () => {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleOnDrop} >
-        <Button type='danger' onClick={readTxtFileData}>读文件内容</Button>
+        <div className={s.dragBarLeft}>
+          {
+            state.fileName.map((item, index) => (
+              <div className={s.sigleFile} key={index} >
+                <Icon type="file-excel" style={{ color: "green", fontSize: 40 }} />
+                <span>{item}</span>
+              </div>
+            ))
+          }
+        </div>
+
+        <div className={s.dragBarRight}>
+          <Button type='danger' onClick={readTxtFileData}>读文件内容</Button>
+        </div>
+
         <div dangerouslySetInnerHTML={{ __html: file }} />
       </div>
     </div>
@@ -297,15 +335,13 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
         </Header>
         <Content>
           <Switch>
-            <Route path="/" exact component={TestComponent} />
+            <Route path="/" exact component={Home} />
             <Route path="/user/user" exact component={User} />
             <Route path="/user/progress" exact component={LearningProgress} />
           </Switch>
         </Content>
         <Footer>Footer</Footer>
       </Layout>
-
-
     </div>
   )
 };

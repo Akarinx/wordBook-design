@@ -14,10 +14,6 @@
     "dist:linux": "yarn run dist -l"
   },
   "dependencies": {
-    "@types/react-transition-group": "^4.4.0",
-    "axios": "^0.21.0",
-    "classnames": "^2.2.6",
-    "react-transition-group": "^4.4.1",
     "source-map-support": "^0.5.16"
   },
   "devDependencies": {
@@ -38,7 +34,12 @@
     "react-router-dom": "^5.2.0",
     "sass-loader": "^8.0.2",
     "typescript": "^3.8.3",
-    "webpack": "4.42.1"
+    "webpack": "4.42.1",
+    "@types/react-transition-group": "^4.4.0",
+    "axios": "^0.21.0",
+    "classnames": "^2.2.6",
+    "csvtojson": "^2.0.10",
+    "react-transition-group": "^4.4.1"
   },
   "build": {
     "productName": "wordbook",
