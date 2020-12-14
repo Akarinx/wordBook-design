@@ -7,7 +7,8 @@ import s from "./App.module.scss"
 import classnames from 'classnames'
 import axios from "axios"
 import { CSSTransition } from 'react-transition-group'
-import { LearningProgress } from '../LearningProgress'
+import { LearningProgress } from '@/components/LearningProgress'
+import { Todolist } from '@/components/Todolist'
 
 const csv = require('csvtojson');
 interface IAppProps {
@@ -131,7 +132,9 @@ const Home: React.FC = () => {
       </div>
       <div className={s.middleBar}>
         <div className={s.userLearningStatus}> {/**todolist */}
-          <Empty />
+          <Todolist />
+          {/* <Empty description="" />
+          <Button type="primary">Click here!</Button> */}
         </div>
         <div className={s.userDetail}>
 

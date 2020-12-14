@@ -53,11 +53,10 @@
       flex: 1;
       display: flex;
       justify-content: space-between;
+      overflow: hidden;
       .userLearningStatus{
         flex: 2;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        overflow-y: auto;
       }
       .userDetail{
         flex:1;

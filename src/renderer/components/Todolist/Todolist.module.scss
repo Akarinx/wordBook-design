@@ -1,0 +1,11 @@
+.TodolistWrapper{
+  width: 100%;
+  height: 100%;
+}
+.todoHeaderWrapper {
+  padding: 0 10px;
+  font-size: 20px;
+  .todoHeaderIcon {
+    padding-left: 10px;
+  }
+}
