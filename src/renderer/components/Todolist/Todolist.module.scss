@@ -1,10 +1,15 @@
 .TodolistWrapper{
   width: 100%;
   height: 100%;
+  padding: 20px;
+  .TodolistInput {
+    margin-bottom: 20px;
+  }
 }
 .todoHeaderWrapper {
   padding: 0 10px;
   font-size: 20px;
+
   .todoHeaderIcon {
     padding-left: 10px;
   }
