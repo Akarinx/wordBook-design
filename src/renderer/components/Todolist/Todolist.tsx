@@ -1,8 +1,9 @@
-import { Collapse, Icon, Input, message, Steps, Tooltip } from 'antd';
-import React, { useCallback, useContext, useRef } from 'react';
+import { Button, Collapse, Icon, Input, message, Steps, Tooltip } from 'antd';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { context, IContext } from '@/store/reducer'
-import { useState } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group'
 import s from './Todolist.module.scss'
+import { TODO } from '@/store/state';
 export interface TodolistProps {
 
 }
@@ -10,27 +11,55 @@ export interface TodolistProps {
 export interface TodoHeaderProps {
   todoHeader: string;
   todotype: 'todo' | 'pending' | 'finished' | '';
+  value: number;
+  handleCancel: (key: number) => void;
+  handleActive: (key: number) => void
 }
 
 const { Panel } = Collapse;
 const { Step } = Steps
+const customPanelStyle = {
+  background: '#fff1b8', // gold-2
+  borderRadius: 4,
+  marginBottom: 24,
+  border: 0,
+  overflow: 'hidden',
+};
+const type2current = {
+  'todo': 0,
+  'pending': 1,
+  'finished': 2
+}
+
 export const Todolist: React.FC<TodolistProps> = () => {
   const { state, dispatch } = useContext<IContext>(context)
-  const input = useRef<Input>(null)
   const { todos } = state
-  const customPanelStyle = {
-    background: '#fff1b8', // gold-2
-    borderRadius: 4,
-    marginBottom: 24,
-    border: 0,
-    overflow: 'hidden',
-  };
-  const type2current = {
-    'todo': 0,
-    'pending': 1,
-    'finished': 2
+  const [nowType, setNowType] = useState<'todo' | 'pending' | 'finished' | ''>('')
+  const input = useRef<Input>(null)
+  const [activeArr, setActiveArr] = useState<number[]>([])
+
+
+
+  const handleCancel = (key: number) => {
+    dispatch({
+      type: "DELETE_TODO",
+      payload: {
+        key
+      }
+    })
   }
-  const changeType = (key, todoType) => {
+  const handleActive = (key: number) => {
+    const index = activeArr.indexOf(key)
+    console.log(index)
+    if (index < 0) {
+      activeArr.push(key)
+    } else {
+      activeArr.splice(index, 1)
+    }
+    setActiveArr([...activeArr])
+  }
+
+  const changeType = (key: number, todoType) => {
     dispatch({
       type: 'CHANGE_TODO_TYPE',
       payload: {
@@ -40,71 +69,101 @@ export const Todolist: React.FC<TodolistProps> = () => {
     })
   }
 
+  const TodosFilter = (type) => {
+    setNowType(type)
+  }
+
   return (<>
     <div className={s.TodolistWrapper}>
-      <div className={s.TodolistInput}>
-        <Input
-          allowClear
-          ref={input}
-          placeholder="请输入待办"
-          suffix={
-            <Tooltip title="计划通">
-              <Icon type="info-circle" style={{ color: 'rgba(0,0,0,.45)' }} />
-            </Tooltip>
-          }
-          onPressEnter={() => {
-            if (input.current) {
-              dispatch({
-                type: 'ADD',
-                payload: { todoName: input.current.input.value, todoType: 'todo' }
-              })
-              input.current.setValue('')
+      <div className={s.TodolistHead}>
+        <div className={s.TodolistInput}>
+          <Input
+            allowClear
+            ref={input}
+            placeholder={`请输入待办,共${todos.length}个待办`}
+            suffix={
+              <Tooltip title="计划通">
+                <Icon type="info-circle" style={{ color: 'rgba(0,0,0,.45)' }} />
+              </Tooltip>
             }
-          }} />
+            onPressEnter={() => {
+              if (input.current) {
+                if (input.current.input.value === "") {
+                  message.error('待办不可为空')
+                  return
+                }
+                dispatch({
+                  type: 'ADD',
+                  payload: { todoName: input.current.input.value, todoType: 'todo' }
+                })
+                input.current.setValue('')
+              }
+            }} />
+        </div>
+        <div className={s.TodolistButton}>
+          <Icon type="frown" theme="twoTone" className={s.IconsStyle} onClick={() => TodosFilter('todo')} />
+          <Icon type="fire" theme="twoTone" className={s.IconsStyle} onClick={() => TodosFilter('pending')} />
+          <Icon type="check-circle" theme="twoTone" className={s.IconsStyle} onClick={() => TodosFilter('finished')} />
+          <Button type="danger" onClick={() => { setActiveArr([]) }} >全部折叠</Button>
+        </div>
       </div>
 
-      <Collapse
-        bordered={false}
-        expandIcon={({ isActive }) => <Icon type="caret-right" rotate={isActive ? 90 : 0} />}
-      >
-        {
-          todos.map(item =>
-          (
-            <Panel header={<TodoHeader todoHeader={item.todoName} todotype={item.todoType} />} key={item.key} style={customPanelStyle}>
-              <Steps size="small" current={type2current[item.todoType]}>
-                <Step title="Todo" icon={<Icon type="user" onClick={() => changeType(item.key, 'todo')} />} />
-                <Step title="Pendding" icon={<Icon type="fire" onClick={() => changeType(item.key, 'pending')} />} />
-                <Step title="Done" icon={<Icon type="smile-o" onClick={() => changeType(item.key, 'finished')} />} />
-              </Steps>
-            </Panel>
-          ))
-        }
-
-      </Collapse>
+      <div>
+        <Collapse
+          bordered={false}
+          expandIcon={({ isActive }) => <Icon type="caret-right" rotate={isActive ? 90 : 0} />}
+          activeKey={activeArr}
+        >
+          {todos.filter(item => {
+            if (nowType === '') {
+              return true
+            } else {
+              return item.todoType === nowType
+            }
+          })
+            .map((item, index) =>
+            (
+              <Panel header={<TodoHeader todoHeader={item.todoName} todotype={item.todoType} value={item.key} handleCancel={handleCancel} handleActive={handleActive} />} key={item.key} style={customPanelStyle}>
+                <Steps size="small" current={type2current[item.todoType]}>
+                  <Step title="Todo" icon={<Icon type="user" />} onClick={() => { changeType(item.key, 'todo'); setTimeout(() => { handleActive(item.key) }, 300) }} style={{ cursor: "pointer" }} />
+                  <Step title="Pendding" icon={<Icon type="fire" />} onClick={() => { changeType(item.key, 'pending'); setTimeout(() => { handleActive(item.key) }, 300) }} style={{ cursor: "pointer" }} />
+                  <Step title="Done" icon={<Icon type="smile-o" />} onClick={() => { changeType(item.key, 'finished'); setTimeout(() => { handleActive(item.key) }, 300) }} style={{ cursor: "pointer" }} />
+                </Steps>
+              </Panel>
+            ))}
+        </Collapse>
+      </div>
     </div>
   </>);
 }
 
 const TodoHeader: React.FC<TodoHeaderProps> = (props) => {
-  const { todoHeader, todotype } = props
-  return (
-    <span className={s.todoHeaderWrapper}>
-      {todoHeader}
-      <span className={s.todoHeaderIcon}>
-        {
-          todotype === 'todo' && (
-            <Icon type="line" style={{ color: "blue" }} />
-          ) ||
-          todotype === 'pending' && (
-            <Icon type="loading" style={{ color: "red" }} />
-          ) ||
-          todotype === 'finished' &&
-          (
-            <Icon type="check" style={{ color: "green" }} />
-          )
-        }
-      </span>
+  const { todoHeader, todotype, handleCancel, value, handleActive } = props
 
-    </span>
+  return (
+    <div className={s.todoHeaderWrapper} onClick={() => handleActive(value)}>
+      <div>
+        {todoHeader}
+        <span className={s.todoHeaderIcon}>
+          {
+            todotype === 'todo' && (
+              <Icon type="line" style={{ color: "blue" }} />
+            ) ||
+            todotype === 'pending' && (
+              <Icon type="loading" style={{ color: "red" }} />
+            ) ||
+            todotype === 'finished' &&
+            (
+              <Icon type="check" style={{ color: "green" }} />
+            )
+          }
+        </span>
+      </div>
+      <div className={s.todoHeaderCancel} onClick={() => handleCancel(value)} >
+        <Icon type="delete" />
+      </div>
+
+
+    </div>
   )
 }

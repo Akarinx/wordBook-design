@@ -215,7 +215,7 @@ const Home: React.FC = () => {
         </div>
 
         <div className={s.dragBarRight}>
-          <Button type='danger' onClick={readTxtFileData}>读文件内容</Button>
+          <Button type='danger' onClick={readTxtFileData}>上传文件</Button>
         </div>
 
         <div dangerouslySetInnerHTML={{ __html: file }} />
@@ -234,6 +234,8 @@ const User: React.FC = (props) => {
 export const App: React.FC<IAppProps> = (props: IAppProps) => {
   const { history } = props
   const [isMaximized, setIsMaximized] = useState(false)
+  const [openKeys, setOpenKeys] = useState<string[]>([])
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const { Header, Sider, Content, Footer } = Layout
   const { SubMenu } = Menu
 
@@ -268,6 +270,7 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
     keyPath: Array<string>;
   }) => {
     const { keyPath } = props
+    console.log(keyPath)
     const path = keyPath.reverse().reduce((prev, next) => {
       return prev + '/' + next
     })
@@ -276,6 +279,8 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
 
   const handleMainClick = useCallback(() => {
     history.push('/')
+    setOpenKeys([])
+    setSelectedKeys([])
   }, [])
 
   return (
@@ -285,12 +290,15 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
           wordBook
         </div>
         <Menu
+          openKeys={openKeys}
+          selectedKeys={selectedKeys}
           onClick={switchPath}
           mode="inline"
           style={{ height: '100%', borderRight: 0 }}
         >
           <SubMenu
             key="user"
+            onTitleClick={() => setOpenKeys(['user'])}
             title={
               <span>
                 <Icon type="user" />
@@ -298,13 +306,14 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
                 </span>
             }
           >
-            <Menu.Item key="user">设置个人资料</Menu.Item>
-            <Menu.Item key="progress">学习进度</Menu.Item>
-            <Menu.Item key="logout">退出登陆</Menu.Item>
-            <Menu.Item key="setting">设置</Menu.Item>
+            <Menu.Item key="user" onClick={() => setSelectedKeys(['user'])} >设置个人资料</Menu.Item>
+            <Menu.Item key="progress" onClick={() => setSelectedKeys(['progress'])} >学习进度</Menu.Item>
+            <Menu.Item key="logout" onClick={() => setSelectedKeys(['logout'])} >退出登陆</Menu.Item>
+            <Menu.Item key="setting" onClick={() => setSelectedKeys(['setting'])} >设置</Menu.Item>
           </SubMenu>
           <SubMenu
             key="toLearn"
+            onTitleClick={() => setOpenKeys(['toLearn'])}
             title={
               <span>
                 <Icon type="laptop" />
@@ -312,9 +321,9 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
                 </span>
             }
           >
-            <Menu.Item key="reading">阅读模式</Menu.Item>
-            <Menu.Item key="words">题库模式</Menu.Item>
-            <Menu.Item key="loading">导入题库</Menu.Item>
+            <Menu.Item key="reading" onClick={() => setSelectedKeys(['reading'])} >阅读模式</Menu.Item>
+            <Menu.Item key="words" onClick={() => setSelectedKeys(['words'])} >题库模式</Menu.Item>
+            <Menu.Item key="loading" onClick={() => setSelectedKeys(['loading'])} >导入题库</Menu.Item>
           </SubMenu>
         </Menu>
       </Sider>
