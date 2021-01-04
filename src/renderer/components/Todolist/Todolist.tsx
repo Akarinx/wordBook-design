@@ -1,9 +1,8 @@
 import { Button, Collapse, Icon, Input, message, Steps, Tooltip } from 'antd';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { context, IContext } from '@/store/reducer'
-import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import classnames from 'classnames'
 import s from './Todolist.module.scss'
-import { TODO } from '@/store/state';
 export interface TodolistProps {
 
 }
@@ -70,7 +69,7 @@ export const Todolist: React.FC<TodolistProps> = () => {
   }
 
   const TodosFilter = (type) => {
-    setNowType(type)
+    nowType === type ? setNowType('') : setNowType(type)
   }
 
   return (<>
@@ -101,9 +100,9 @@ export const Todolist: React.FC<TodolistProps> = () => {
             }} />
         </div>
         <div className={s.TodolistButton}>
-          <Icon type="frown" theme="twoTone" className={s.IconsStyle} onClick={() => TodosFilter('todo')} />
-          <Icon type="fire" theme="twoTone" className={s.IconsStyle} onClick={() => TodosFilter('pending')} />
-          <Icon type="check-circle" theme="twoTone" className={s.IconsStyle} onClick={() => TodosFilter('finished')} />
+          <Icon type="frown" theme="twoTone" twoToneColor={nowType === 'todo' ? '#eb2f96' : '#52c41a'} className={s.IconsStyle} onClick={() => TodosFilter('todo')} />
+          <Icon type="fire" theme="twoTone" twoToneColor={nowType === 'pending' ? '#eb2f96' : '#52c41a'} className={s.IconsStyle} onClick={() => TodosFilter('pending')} />
+          <Icon type="check-circle" theme="twoTone" twoToneColor={nowType === 'finished' ? '#eb2f96' : '#52c41a'} className={s.IconsStyle} onClick={() => TodosFilter('finished')} />
           <Button type="danger" onClick={() => { setActiveArr([]) }} >全部折叠</Button>
         </div>
       </div>

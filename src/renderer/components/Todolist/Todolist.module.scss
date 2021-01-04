@@ -11,6 +11,9 @@
     .TodolistButton {
       flex: 1;
       text-align: right;
+      .highlight {
+        color:pink
+      }
       .IconsStyle {
         position: relative;
         top: 5px;
