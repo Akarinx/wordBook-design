@@ -71,9 +71,9 @@ function createMainWindow() {
   if (mainWindow) return
   const window = new BrowserWindow({
     show: true,
-    height: 1000,
-    width: 1600,
-    minWidth: 900,
+    height: 600,
+    width: 1200,
+    minWidth: 1200,
     minHeight: 600,
     useContentSize: true,
     frame: false, // 无边框
@@ -148,6 +148,13 @@ function createTray() {
 
   // 设置此图标的上下文菜单
   appTray.setContextMenu(contextMenu)
+
+  // 设置双击图标事件
+  appTray.on('double-click', () => {
+    if (mainWindow) {
+      mainWindow.show()
+    }
+  })
 }
 
 // 设置单例化

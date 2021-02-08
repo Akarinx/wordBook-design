@@ -37,7 +37,8 @@ const Home: React.FC = () => {
     const res = await remote.dialog.showOpenDialog({
       title: '选择csv',
     })
-    const filename = res.filePaths[0].split('/').pop()
+    console.log(res.filePaths[0],'a')
+    const filename = res.filePaths[0].split('\\').pop() // windows系统是\,mac系统是/
     const isSameName = state.fileName.findIndex(item => item === filename)
     if (isSameName <= -1) {
       filename && dispatch({ type: "ADD_FILENAME", payload: filename })
@@ -141,10 +142,10 @@ const Home: React.FC = () => {
           <div className={s.userHead}>
             <Badge count={5}>
               <div onMouseEnter={useCallback(() => setUserheadHover(true), [])} onMouseLeave={useCallback(() => setUserheadHover(false), [])}>
-                <Avatar shape="square" size={200} icon="user" src={`http://localhost:3001/bb.png`} />   {/*todo: 按用户名查找对应路径文件 e.g.:localhost:3001/111/bb.png */}
+                <Avatar shape="square" size={70} icon="user" src={`http://localhost:3001/bb.png`} />   {/*todo: 按用户名查找对应路径文件 e.g.:localhost:3001/111/bb.png */}
                 <CSSTransition in={userheadHover} classNames="hover" timeout={500} unmountOnExit >
                   <div className={s.userHeadHover}>
-                    <span style={{ color: "white", fontSize: "14px" }} >拖拽上传头像</span>
+                    <span style={{ color: "white", fontSize: "10px" }} >拖拽上传头像</span>
                   </div>
                 </CSSTransition>
               </div>
@@ -181,7 +182,12 @@ const Home: React.FC = () => {
             <div className={s.userSignature}>
               {
                 isEdit ?
-                  <Input placeholder="Basic usage" defaultValue={userSignature} onFocus={() => setIsEdit(true)} onBlur={() => { setIsEdit(false); console.log('1') }} onChange={(e) => setUserSignature(e.target.value)} />
+                  <Input placeholder="Basic usage"
+                    defaultValue={userSignature}
+                    onFocus={() => setIsEdit(true)}
+                    onBlur={() => { setIsEdit(false); console.log('1') }}
+                    onPressEnter={()=>{setIsEdit(false)}}
+                    onChange={(e) => setUserSignature(e.target.value)} />
                   : (
                     <span >
                       {userSignature}
@@ -205,10 +211,10 @@ const Home: React.FC = () => {
         onDrop={handleOnDrop} >
         <div className={s.dragBarLeft}>
           {
-            state.fileName.map((item, index) => (
-              <div className={s.sigleFile} key={index} >
+            state.fileName.map((item, index) => ( // 文件图标
+              <div className={s.sigleFile} key={index} > 
                 <Icon type="file-excel" style={{ color: "green", fontSize: 40 }} />
-                <span>{item}</span>
+                <span className={s.sigleFileName}>{item}</span>
               </div>
             ))
           }
@@ -287,7 +293,9 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
     <div className={s.main} >
       <Sider>
         <div className={s.appName} onClick={handleMainClick}>
-          wordBook
+          <div className={s.appTrueName}>
+            wordbook
+          </div>
         </div>
         <Menu
           openKeys={openKeys}

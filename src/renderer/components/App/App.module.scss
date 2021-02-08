@@ -4,11 +4,15 @@
   height: 100%;
   .appName{
     height: 50px;
-    text-align: center;
-    line-height: 50px;
     background-color: #ffe58f;
     cursor: pointer;
-    -webkit-app-region: drag;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .appTrueName{
+      padding: 0 30px;
+      -webkit-app-region: drag;
+    }
   }
   .searchBar{
     flex:1;
@@ -64,7 +68,7 @@
         flex-direction: column;
         .userHead{
           margin-top: 20px;
-          flex:0 0 200px;
+          flex:0 0 50px;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -101,7 +105,7 @@
       }
     }
     .dragBar{
-      flex:0 0 300px;
+      flex:0 0 100px;
       display: flex;
       &.dragOver{
         filter: blur(0.5px);
@@ -113,12 +117,25 @@
         justify-content: center;
         align-items: center;
         .sigleFile{
+          box-sizing: content-box;
           display: flex;
           flex-direction: column;
-          margin: 10px;
+          padding: 10px;
           font-size: 16px;
+          width: 60px;
+          transition: all 0.5s;
           cursor: pointer;
-
+          &:hover{
+            background-color: rgba(black,0.2);
+            border-radius: 4px;
+          }
+          .sigleFileName{
+            width: 100%;
+            overflow: hidden;
+            text-overflow:ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+          }
         }
       }
       .dragBarRight{
