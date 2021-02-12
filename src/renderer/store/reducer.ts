@@ -45,9 +45,20 @@ export const reducer = (state: IInitstate, action: ActionType) => {
       }
     }
     case "ADD_FILENAME": {
+      const fileName = state.fileName
+      fileName.push(action.payload)
       return {
         ...state,
-        filename: state.fileName.push(action.payload)
+        fileName
+      }
+    }
+    case "DELETE_FILE": {
+      const fileName = state.fileName
+      fileName.splice(action.payload, 1)
+      console.log(fileName)
+      return {
+        ...state,
+        fileName
       }
     }
     default:

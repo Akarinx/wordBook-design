@@ -15,5 +15,5 @@ type ChangeTodoType = IAction<'CHANGE_TODO_TYPE', { key: number, todoType: 'todo
 type DeleteTodo = IAction<'DELETE_TODO', { key: number }>
 type AddSync = IAction<'ADDSYNC', any>
 type AddFilename = IAction<'ADD_FILENAME', string>
-
-export type ActionType = Add | AddSync | AddFilename | ChangeTodoType | DeleteTodo
+type DelFile = IAction<'DELETE_FILE',number>
+export type ActionType = Add | AddSync | AddFilename | ChangeTodoType | DeleteTodo | DelFile

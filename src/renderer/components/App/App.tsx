@@ -37,7 +37,7 @@ const Home: React.FC = () => {
     const res = await remote.dialog.showOpenDialog({
       title: '选择csv',
     })
-    console.log(res.filePaths[0],'a')
+    console.log(res.filePaths[0], 'a')
     const filename = res.filePaths[0].split('\\').pop() // windows系统是\,mac系统是/
     const isSameName = state.fileName.findIndex(item => item === filename)
     if (isSameName <= -1) {
@@ -96,8 +96,21 @@ const Home: React.FC = () => {
     upload(formdata)
   }
 
+  const handleFileClick = e => {
+
+  }
+
+  const handleFileDoubleClick = (e,index) => {
+    dispatch({
+      type: 'DELETE_FILE',
+      payload:index
+    })
+    console.log('done')
+  }
+
 
   useEffect(() => {
+    console.log(state,123);
     (async () => {
       let res
       try {
@@ -212,7 +225,7 @@ const Home: React.FC = () => {
         <div className={s.dragBarLeft}>
           {
             state.fileName.map((item, index) => ( // 文件图标
-              <div className={s.sigleFile} key={index} > 
+              <div className={s.sigleFile} key={index} onClick={handleFileClick} onDoubleClick={(event)=>handleFileDoubleClick(event,index) } > 
                 <Icon type="file-excel" style={{ color: "green", fontSize: 40 }} />
                 <span className={s.sigleFileName}>{item}</span>
               </div>
