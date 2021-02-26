@@ -9,7 +9,7 @@ import axios from "axios"
 import { CSSTransition } from 'react-transition-group'
 import { LearningProgress } from '@/components/LearningProgress'
 import { Todolist } from '@/components/Todolist'
-
+import {UserSetting} from '@/components/UserSetting'
 const csv = require('csvtojson');
 interface IAppProps {
   history: any;
@@ -369,11 +369,11 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
         <Content>
           <Switch>
             <Route path="/" exact component={Home} />
-            <Route path="/user/user" exact component={User} />
+            <Route path="/user/user" exact component={UserSetting} />
             <Route path="/user/progress" exact component={LearningProgress} />
           </Switch>
         </Content>
-        <Footer>Footer</Footer>
+        {/* <Footer>Footer</Footer> */}
       </Layout>
     </div>
   )

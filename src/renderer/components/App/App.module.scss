@@ -11,6 +11,7 @@
     align-items: center;
     .appTrueName{
       padding: 0 30px;
+      user-select: none;
       -webkit-app-region: drag;
     }
   }
@@ -100,6 +101,7 @@
             display: flex;
             justify-content: flex-start;
             align-items: center;
+            word-break: break-all;
           }
         }
       }

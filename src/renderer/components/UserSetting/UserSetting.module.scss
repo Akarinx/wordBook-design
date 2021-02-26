@@ -1,4 +1,83 @@
-.main{
+@import '../../common.scss';
+.Wrapper{
+  background-color: $bgc;
   width: 100%;
   height: 100%;
+  margin:0 auto;
+  .mainBody{
+    height: 100%;
+    padding: 50px 0;
+    display: flex;
+    justify-content: space-around;
+    .mainLeft{
+      flex: 0.95;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 2px 4px 10px 0 rgba(0,0,0,0.2);
+    }
+    .mainRight{
+      flex: 0 0 300px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 2px 4px 10px 0 rgba(0,0,0,0.2);
+      padding:24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      .head{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        padding-top: 50px;
+      }
+      .rightName{
+        padding-top: 20px;
+        letter-spacing: 0;
+        text-align: center;
+        font-size: 1.5rem;
+      }
+      .checkinBox{
+        font-family: PingFangTC-Regular;
+        font-size:18px;
+        width: 80%;
+        color:$grey;
+        padding-bottom: 14px;
+        padding-top: 20px;
+        border-bottom: 1px solid #e5eaf2;
+        text-align: center;
+        .checkinDays{
+          font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+          color: $deep-bgc;
+          padding: 0 8px;
+        }
+      }
+      .setting{
+        padding-top: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        .timeCounter{
+          font-size: 14px;
+          font-family: PingFangTC-Regular;
+          padding: 20px;
+          .timeMin{
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            color: $deep-bgc;
+            padding: 0 8px;
+          }
+        }
+        .wordCounter{
+          font-size: 14px;
+          font-family: PingFangTC-Regular;
+          padding: 10px 20px;
+          .wordCount{
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            color: $deep-bgc;
+            padding: 0 8px;
+          }
+        }
+      }
+    }
+  }
 }
