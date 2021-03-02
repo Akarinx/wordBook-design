@@ -71,7 +71,7 @@ function createMainWindow() {
   if (mainWindow) return
   const window = new BrowserWindow({
     show: true,
-    height: 600,
+    height: 700,
     width: 1200,
     minWidth: 1200,
     minHeight: 600,

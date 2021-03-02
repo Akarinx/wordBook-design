@@ -11,7 +11,7 @@ export interface IContext {
 let KEY = 0
 export const reducer = (state: IInitstate, action: ActionType) => {
   switch (action.type) {
-    case "ADD": {
+    case "ADD": { // 添加todo
       const todos = state.todos
       const obj = { ...action.payload, key: KEY++ }
       todos.push(obj)
@@ -20,7 +20,7 @@ export const reducer = (state: IInitstate, action: ActionType) => {
         todos
       }
     }
-    case "DELETE_TODO": {
+    case "DELETE_TODO": { // 删除todo
       const todos = state.todos
       const index = todos.findIndex(item => action.payload.key === item.key)
       todos.splice(index, 1)
@@ -29,7 +29,7 @@ export const reducer = (state: IInitstate, action: ActionType) => {
         todos
       }
     }
-    case "CHANGE_TODO_TYPE": {
+    case "CHANGE_TODO_TYPE": { // 修改todo type
       const todos = state.todos
       const index = todos.findIndex(item => action.payload.key === item.key)
       todos[index].todoType = action.payload.todoType
@@ -44,7 +44,7 @@ export const reducer = (state: IInitstate, action: ActionType) => {
         point: action.payload + state.point
       }
     }
-    case "ADD_FILENAME": {
+    case "ADD_FILENAME": { // 添加文件
       const fileName = state.fileName
       fileName.push(action.payload)
       return {
@@ -52,13 +52,23 @@ export const reducer = (state: IInitstate, action: ActionType) => {
         fileName
       }
     }
-    case "DELETE_FILE": {
+    case "DELETE_FILE": { // 删除文件
       const fileName = state.fileName
       fileName.splice(action.payload, 1)
       console.log(fileName)
       return {
         ...state,
         fileName
+      }
+    }
+    case "ADD_USER": {
+      const { username } = action.payload
+      console.log(username)
+      return {
+        ...state,
+        user: {
+          username:username
+        }
       }
     }
     default:

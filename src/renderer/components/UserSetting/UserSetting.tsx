@@ -1,16 +1,77 @@
-import { Avatar, Icon } from 'antd';
+import { Avatar, Icon, Tooltip } from 'antd';
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import * as echarts from 'echarts'
+import { useState, useEffect, useContext } from 'react';
 import s from './UserSetting.module.scss'
+import { context, IContext } from '@/store/reducer';
 export interface UserSettingProps {
 
 }
 
 const UserSetting: React.FC<UserSettingProps> = () => {
-  const username = 123
+  const { state, dispatch } = useContext<IContext>(context)
+  console.log(state)
+  const { username } = state.user
   const checkinDays = 1
+  const optionPie = {
+    title: {
+      text: '近五日学习时长',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+    },
+    series: [
+      {
+        name: '学习时长',
+        type: 'pie',
+        radius: '50%',
+        data: [
+          { value: 1048, name: '五天前' },
+          { value: 735, name: '四天前' },
+          { value: 580, name: '三天前' },
+          { value: 484, name: '两天前' },
+          { value: 300, name: '一天前' }
+        ],
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }
+    ]
+  };
+  const optionLine = {
+    title: {
+      text: '近五日错题数',
+    },
+    legend: {
+      data: ['错题数']
+    },
+    xAxis: {
+      type: 'category',
+      data: ['五天前', '四天前', '三天前', '二天前', '一天前']
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [{
+      name: '错题数',
+      type: 'bar',
+      data: [5, 20, 36, 10, 10]
+    }]
+  }
+
+
   const [timeCounter, setTimeCounter] = useState<number>(0)
   const [wordCounter, setWordCounter] = useState<number>(0)
+  const [picType, setPicType] = useState<Boolean>(true)
   // eslint-disable-next-line no-undef
   let t: null | NodeJS.Timeout = null
   const time: () => void = () => {
@@ -27,12 +88,18 @@ const UserSetting: React.FC<UserSettingProps> = () => {
 
   useEffect(() => {
     time()
-  }, [])
+    const dom = document.getElementById('container')
+    if (dom) {
+      var myChart = echarts.init(dom);
+      const option = picType ? optionPie : optionLine;
+      myChart.setOption(option);
+    }
+  }, [picType])
 
   return (
     <div className={s.Wrapper}>
       <div className={s.mainBody}>
-        <div className={s.mainLeft}>
+        <div id="container" className={s.mainLeft}>
 
         </div>
         <div className={s.mainRight}>
@@ -63,6 +130,20 @@ const UserSetting: React.FC<UserSettingProps> = () => {
                 {wordCounter}
               </span>
               个单词
+            </div>
+            <div className={s.picSelectWrapper}>
+              <span className={s.hov} >
+                <Tooltip title="近五日学习时长" placement={"bottom"}>
+                  <Icon style={{ fontSize: "20px", cursor: "pointer" }} type="line-chart" onClick={() => setPicType(true)} />
+                </Tooltip>
+              </span>
+              <span className={s.hov} >
+                <Tooltip title="近五日错题分析" placement={"bottom"}>
+                  <Icon style={{ fontSize: "20px", cursor: "pointer" }} type="pie-chart" onClick={() => setPicType(false)} />
+                </Tooltip>
+              </span>
+
+
             </div>
 
           </div>

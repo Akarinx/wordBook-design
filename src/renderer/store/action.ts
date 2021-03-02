@@ -1,5 +1,6 @@
 
 
+import {USER} from './state'
 export interface IAction<T, U> {
   type: T;
   payload: U;
@@ -15,5 +16,6 @@ type ChangeTodoType = IAction<'CHANGE_TODO_TYPE', { key: number, todoType: 'todo
 type DeleteTodo = IAction<'DELETE_TODO', { key: number }>
 type AddSync = IAction<'ADDSYNC', any>
 type AddFilename = IAction<'ADD_FILENAME', string>
-type DelFile = IAction<'DELETE_FILE',number>
-export type ActionType = Add | AddSync | AddFilename | ChangeTodoType | DeleteTodo | DelFile
+type DelFile = IAction<'DELETE_FILE', number>
+type AddUser = IAction<'ADD_USER',USER>
+export type ActionType = Add | AddSync | AddFilename | ChangeTodoType | DeleteTodo | DelFile | AddUser

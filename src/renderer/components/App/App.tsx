@@ -9,7 +9,7 @@ import axios from "axios"
 import { CSSTransition } from 'react-transition-group'
 import { LearningProgress } from '@/components/LearningProgress'
 import { Todolist } from '@/components/Todolist'
-import {UserSetting} from '@/components/UserSetting'
+import { UserSetting } from '@/components/UserSetting'
 const csv = require('csvtojson');
 interface IAppProps {
   history: any;
@@ -100,17 +100,16 @@ const Home: React.FC = () => {
 
   }
 
-  const handleFileDoubleClick = (e,index) => {
+  const handleFileDoubleClick = (e, index) => {
     dispatch({
       type: 'DELETE_FILE',
-      payload:index
+      payload: index
     })
     console.log('done')
   }
 
-
+  // 请求扇贝每日句子
   useEffect(() => {
-    console.log(state,123);
     (async () => {
       let res
       try {
@@ -127,6 +126,28 @@ const Home: React.FC = () => {
       }
       setDailyquote(res.data.data.content)
       setDailyquoteTranslated(res.data.data.translation)
+    })()
+  }, [])
+
+  // 请求用户信息
+  useEffect(() => {
+    (async () => {
+      let res
+      try {
+        res = await axios.post('http://localhost:3001/api/userDetail', {
+          username: localStorage.getItem('username')
+        })
+      } catch (e) {
+        res = {
+          data: {
+            username: 'null'
+          }
+        }
+      }
+      dispatch({
+        type: "ADD_USER",
+        payload: res.data.username
+      })
     })()
   }, [])
 
@@ -199,7 +220,7 @@ const Home: React.FC = () => {
                     defaultValue={userSignature}
                     onFocus={() => setIsEdit(true)}
                     onBlur={() => { setIsEdit(false); console.log('1') }}
-                    onPressEnter={()=>{setIsEdit(false)}}
+                    onPressEnter={() => { setIsEdit(false) }}
                     onChange={(e) => setUserSignature(e.target.value)} />
                   : (
                     <span >
@@ -225,7 +246,7 @@ const Home: React.FC = () => {
         <div className={s.dragBarLeft}>
           {
             state.fileName.map((item, index) => ( // 文件图标
-              <div className={s.sigleFile} key={index} onClick={handleFileClick} onDoubleClick={(event)=>handleFileDoubleClick(event,index) } > 
+              <div className={s.sigleFile} key={index} onClick={handleFileClick} onDoubleClick={(event) => handleFileDoubleClick(event, index)} >
                 <Icon type="file-excel" style={{ color: "green", fontSize: 40 }} />
                 <span className={s.sigleFileName}>{item}</span>
               </div>
