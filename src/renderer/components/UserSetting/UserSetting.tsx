@@ -11,7 +11,7 @@ export interface UserSettingProps {
 const UserSetting: React.FC<UserSettingProps> = () => {
   const { state, dispatch } = useContext<IContext>(context)
   console.log(state)
-  const { username } = state.user
+  const { userName } = state.user
   const checkinDays = 1
   const optionPie = {
     title: {
@@ -81,8 +81,13 @@ const UserSetting: React.FC<UserSettingProps> = () => {
     const dt = new Date()
     const h = dt.getHours()
     const min = dt.getMinutes()
-    const sec = dt.getSeconds()
-    setTimeCounter(min)
+    const beginTime = localStorage.getItem('beginTime')
+    if (beginTime) {
+      const [beginHours, beginMinutes] = beginTime.split(':')
+      const learningTime = (h - Number(beginHours)) * 60 + min - Number(beginMinutes)
+      setTimeCounter(learningTime)
+    }
+
     t = setTimeout(time, 1000);
   }
 
@@ -106,7 +111,7 @@ const UserSetting: React.FC<UserSettingProps> = () => {
           <div className={s.head}>
             <Avatar size={100} icon="user" src={`http://localhost:3001/bb.png`} style={{ borderRadius: "50%" }} />
           </div>
-          <h2 className={s.rightName} >Hi, {username}</h2>
+          <h2 className={s.rightName} >Hi, {userName}</h2>
           <div className={s.checkinBox}>
             已学习
             <span className={s.checkinDays}>

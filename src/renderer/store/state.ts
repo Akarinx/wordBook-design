@@ -3,9 +3,20 @@ export interface TODO {
   todoType: 'todo' | 'pending' | 'finished';
   key: number
 }
-export interface USER {
-  username: string;
+export interface USINGTIME {
+  date: string;
+  time:number
+}
+export interface WORDCOUNT {
+  date: string;
+  Counter: number;
+}
 
+export interface USER {
+  userName: string;
+  usingtime: [USINGTIME];
+  wordCount: [WORDCOUNT];
+  wrongWordBook:[string]
 }
 export interface IInitstate {
   point: number;
@@ -23,7 +34,16 @@ export const initstate: IInitstate = {
   fileName: [],
   todos: [],
   user: {
-    username:''
+    userName: '',
+    usingtime: [{
+      date: '',
+      time:0
+    }],
+    wordCount: [{
+      date: '',
+      Counter:0
+    }],
+    wrongWordBook:['']
   }
 }
 

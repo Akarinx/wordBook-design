@@ -62,12 +62,15 @@ export const reducer = (state: IInitstate, action: ActionType) => {
       }
     }
     case "ADD_USER": {
-      const { username } = action.payload
-      console.log(username)
+      const { userName,usingtime,wordCount,wrongWordBook } = action.payload
+      console.log(userName,usingtime)
       return {
         ...state,
         user: {
-          username:username
+          userName,
+          usingtime,
+          wordCount,
+          wrongWordBook
         }
       }
     }

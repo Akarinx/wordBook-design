@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { context, IContext } from '@/store/reducer'
-import { Avatar, Badge, Button, Empty, Icon, Input, Layout, Menu, message, Statistic } from 'antd'
+import { Avatar, Badge, Button, Icon, Input, Layout, Menu, message, Statistic, Upload } from 'antd'
 import { BrowserWindow, remote } from 'electron'
-import { Link, match, Switch, Route } from 'react-router-dom'
+import { match, Switch, Route } from 'react-router-dom'
 import s from "./App.module.scss"
 import classnames from 'classnames'
 import axios from "axios"
@@ -20,14 +20,39 @@ interface IAppProps {
 
 const Home: React.FC = () => {
   const { state, dispatch } = useContext<IContext>(context)
-  const [file, setFile] = useState('')
+  const [fileList, setFileList] = useState<any[]>([])
   const [dailyquote, setDailyquote] = useState('')
   const [dailyquoteTranslated, setDailyquoteTranslated] = useState('')
   const [isDragged, setIsDragged] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [uploading, setUploading] = useState(false)
   const [userheadHover, setUserheadHover] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
   const [userSignature, setUserSignature] = useState('')
+
+  const upLoadProps = {
+    accept: ".csv",
+    onRemove: file => {
+      const index = fileList.indexOf(file)
+      const newFileList = fileList.slice()
+      newFileList.splice(index, 1)
+      setFileList(newFileList)
+    },
+    beforeUpload: file => {
+      setFileList([...fileList, file])
+      return false
+    },
+    fileList
+  };
+
+  const handleUpload = () => {
+    const formData = new FormData()
+    fileList.forEach(file => {
+      formData.append('file', file)
+    })
+    setUploading(true)
+    upload(formData)
+  }
+
   const handleEdit = () => {
     if (!isEdit) {
       setIsEdit(true)
@@ -64,13 +89,15 @@ const Home: React.FC = () => {
         // 使用本地 progress 事件
         if (e.lengthComputable) {
           let progress = loaded / total * 100;
-          console.log(progress)
-          setProgress(progress)
         }
       }
     };
+    formData.append('username', state.user.userName)
+    console.log(formData, 'abs')
     const res = await axios.post('http://localhost:3001/api/upload', formData, config);
     if (res.status === 200) {
+      setUploading(false)
+      setFileList([])
       console.log('上传完成😀');
     }
   }
@@ -90,7 +117,7 @@ const Home: React.FC = () => {
     event.preventDefault()
     event.stopPropagation()
     const res = event.dataTransfer.files[0]
-
+    console.log(res)
     let formdata = new FormData()
     formdata.append('file', res)
     upload(formdata)
@@ -105,25 +132,38 @@ const Home: React.FC = () => {
       type: 'DELETE_FILE',
       payload: index
     })
-    console.log('done')
   }
 
   // 请求扇贝每日句子
   useEffect(() => {
     (async () => {
       let res
-      try {
-        res = await axios.get('http://localhost:3001/api/dailyquote')
-      } catch (e) {
+      if (!localStorage.getItem('dailyquote') && !localStorage.getItem('dailyquoteTrans')) {
+        try {
+          res = await axios.get('http://localhost:3001/api/dailyquote')
+          localStorage.setItem('dailyquote', res.data.data.content)
+          localStorage.setItem('dailyquoteTrans', res.data.data.translation)
+        } catch (e) {
+          res = {
+            data: {
+              data: {
+                content: 'fail',
+                translation: '获取失败'
+              }
+            }
+          }
+        }
+      } else {
         res = {
           data: {
             data: {
-              content: 'fail',
-              translation: '获取失败'
+              content: localStorage.getItem('dailyquote'),
+              translation: localStorage.getItem('dailyquoteTrans')
             }
           }
         }
       }
+
       setDailyquote(res.data.data.content)
       setDailyquoteTranslated(res.data.data.translation)
     })()
@@ -139,16 +179,27 @@ const Home: React.FC = () => {
         })
       } catch (e) {
         res = {
-          data: {
-            username: 'null'
-          }
+          data: [{
+            userName: 'null'
+          }]
         }
       }
+      console.log(res.data.data[0])
       dispatch({
         type: "ADD_USER",
-        payload: res.data.username
+        payload: res.data.data[0]
       })
     })()
+  }, [])
+
+  //记录登录时间
+  useEffect(() => {
+    if (!localStorage.getItem('beginTime')) {
+      const date = new Date();
+      const current_hours = date.getHours();
+      const current_minutes = date.getMinutes();
+      localStorage.setItem('beginTime', current_hours + ':' + current_minutes)
+    }
   }, [])
 
 
@@ -184,7 +235,7 @@ const Home: React.FC = () => {
                 </CSSTransition>
               </div>
             </Badge>
-            <span>username</span>
+            <span>{state.user.userName}</span>
           </div>
           <div className={s.userSomething}>
             <div className={s.userActive}>
@@ -219,7 +270,7 @@ const Home: React.FC = () => {
                   <Input placeholder="Basic usage"
                     defaultValue={userSignature}
                     onFocus={() => setIsEdit(true)}
-                    onBlur={() => { setIsEdit(false); console.log('1') }}
+                    onBlur={() => { setIsEdit(false); }}
                     onPressEnter={() => { setIsEdit(false) }}
                     onChange={(e) => setUserSignature(e.target.value)} />
                   : (
@@ -255,20 +306,26 @@ const Home: React.FC = () => {
         </div>
 
         <div className={s.dragBarRight}>
-          <Button type='danger' onClick={readTxtFileData}>上传文件</Button>
+          <Upload {...upLoadProps} >
+            <Button>
+              <Icon type="upload" /> 点击上传
+            </Button>
+          </Upload>
+          <Button
+            type="primary"
+            onClick={handleUpload}
+            disabled={fileList.length === 0}
+            loading={uploading}
+            style={{ marginTop: 16 }}
+          >
+            {uploading ? '上传中' : '开始上传'}
+          </Button>
         </div>
-
-        <div dangerouslySetInnerHTML={{ __html: file }} />
       </div>
     </div>
   )
 }
 
-const User: React.FC = (props) => {
-  return (
-    <Link to="/">123</Link>
-  )
-}
 
 
 export const App: React.FC<IAppProps> = (props: IAppProps) => {
@@ -276,8 +333,25 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
   const [isMaximized, setIsMaximized] = useState(false)
   const [openKeys, setOpenKeys] = useState<string[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
-  const { Header, Sider, Content, Footer } = Layout
+  const { Header, Sider, Content } = Layout
   const { SubMenu } = Menu
+
+  const countTime = (time: String) => {
+    const date = new Date()
+    const [beginHours, beginMinutes] = time.split(':')
+    const currentHours = date.getHours()
+    const currentMinutes = date.getMinutes()
+    const currentYear = date.getFullYear()
+    const currentMonth = date.getMonth() + 1
+    const currentDay = date.getDay()
+    const learningTime = (currentHours - Number(beginHours)) * 60 + currentMinutes - Number(beginMinutes)
+    const DATE = currentYear + '-' + currentMonth + '-' + currentDay
+    axios.post('http://localhost:3001/api/postUserTime', {
+      username: localStorage.getItem('username'),
+      date: DATE,
+      time: learningTime
+    })
+  }
 
   const handleWinControl = useCallback((action: string) => {
     const browserWindow: BrowserWindow = remote.getCurrentWindow()
@@ -297,9 +371,14 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
         }
         setIsMaximized(!isMaximized)
         break;
-      case 'close':
+      case 'close': {
         browserWindow.hide()
+        let beginTime = localStorage.getItem('beginTime')
+        if (beginTime)
+          countTime(beginTime)
         break;
+      }
+
       default:
         break;
     }
