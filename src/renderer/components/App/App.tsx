@@ -10,6 +10,8 @@ import { CSSTransition } from 'react-transition-group'
 import { LearningProgress } from '@/components/LearningProgress'
 import { Todolist } from '@/components/Todolist'
 import { UserSetting } from '@/components/UserSetting'
+import { getUserDetail, getUserFolder } from '@/requests'
+
 const csv = require('csvtojson');
 interface IAppProps {
   history: any;
@@ -20,7 +22,7 @@ interface IAppProps {
 
 const Home: React.FC = () => {
   const { state, dispatch } = useContext<IContext>(context)
-  const [fileList, setFileList] = useState<any[]>([])
+  const [fileList, setFileList] = useState<any[]>([]) // 上传文件列表
   const [dailyquote, setDailyquote] = useState('')
   const [dailyquoteTranslated, setDailyquoteTranslated] = useState('')
   const [isDragged, setIsDragged] = useState(false)
@@ -66,7 +68,7 @@ const Home: React.FC = () => {
     const filename = res.filePaths[0].split('\\').pop() // windows系统是\,mac系统是/
     const isSameName = state.fileName.findIndex(item => item === filename)
     if (isSameName <= -1) {
-      filename && dispatch({ type: "ADD_FILENAME", payload: filename })
+      filename && dispatch({ type: "ADD_FILENAME", payload: [filename] })
       const jsonObj = await csv().fromFile(res.filePaths[0]);
       console.log(jsonObj)
     } else {
@@ -172,23 +174,24 @@ const Home: React.FC = () => {
   // 请求用户信息
   useEffect(() => {
     (async () => {
-      let res
-      try {
-        res = await axios.post('http://localhost:3001/api/userDetail', {
-          username: localStorage.getItem('username')
-        })
-      } catch (e) {
-        res = {
-          data: [{
-            userName: 'null'
-          }]
-        }
-      }
-      console.log(res.data.data[0])
+      let res = await getUserDetail()
       dispatch({
         type: "ADD_USER",
-        payload: res.data.data[0]
+        payload: res
       })
+    })()
+  }, [])
+
+  // 请求用户已上传文档信息
+  useEffect(() => {
+    (async () => {
+      let userFileList = await getUserFolder()
+      if (userFileList.length !== 0) {
+        dispatch({
+          type: "ADD_FILENAME",
+          payload: userFileList
+        })
+      }
     })()
   }, [])
 

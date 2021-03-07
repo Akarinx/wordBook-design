@@ -45,8 +45,10 @@ export const reducer = (state: IInitstate, action: ActionType) => {
       }
     }
     case "ADD_FILENAME": { // 添加文件
-      const fileName = state.fileName
-      fileName.push(action.payload)
+      let fileName = state.fileName
+      console.log(action.payload)
+      fileName = action.payload
+      console.log(fileName,111)
       return {
         ...state,
         fileName
