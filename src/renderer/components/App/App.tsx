@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { context, IContext } from '@/store/reducer'
-import { Avatar, Badge, Button, Icon, Input, Layout, Menu, message, Statistic, Upload } from 'antd'
+import { Avatar, Badge, Button, Icon, Input, Layout, Menu, message, Statistic, Upload, Modal, Radio } from 'antd'
 import { BrowserWindow, remote } from 'electron'
 import { match, Switch, Route } from 'react-router-dom'
 import s from "./App.module.scss"
@@ -11,7 +11,9 @@ import { LearningProgress } from '@/components/LearningProgress'
 import { Todolist } from '@/components/Todolist'
 import { UserSetting } from '@/components/UserSetting'
 import { getUserDetail, getUserFolder } from '@/requests'
-
+import LearningType from '../StudyType/LearningType';
+import ExamingType from '../StudyType/ExamingType';
+import TestingType from '../StudyType/TestingType';
 const csv = require('csvtojson');
 interface IAppProps {
   history: any;
@@ -19,8 +21,14 @@ interface IAppProps {
   match: match;
   staticContext?: any;
 }
+interface IHomeProps {
+  history: any;
+  setOpenKeys: Function;
+  setSelectedKeys: Function;
+}
 
-const Home: React.FC = () => {
+const Home: React.FC<IHomeProps> = (props) => {
+  const { history, setOpenKeys, setSelectedKeys } = props
   const { state, dispatch } = useContext<IContext>(context)
   const [fileList, setFileList] = useState<any[]>([]) // 上传文件列表
   const [dailyquote, setDailyquote] = useState('')
@@ -30,6 +38,7 @@ const Home: React.FC = () => {
   const [userheadHover, setUserheadHover] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
   const [userSignature, setUserSignature] = useState('')
+  let learningType = 'reading'
 
   const upLoadProps = {
     accept: ".csv",
@@ -46,6 +55,7 @@ const Home: React.FC = () => {
     fileList
   };
 
+  // 处理上传
   const handleUpload = () => {
     const formData = new FormData()
     fileList.forEach(file => {
@@ -54,7 +64,7 @@ const Home: React.FC = () => {
     setUploading(true)
     upload(formData)
   }
-
+  //更改签名修改与否状态
   const handleEdit = () => {
     if (!isEdit) {
       setIsEdit(true)
@@ -77,6 +87,7 @@ const Home: React.FC = () => {
 
   }
 
+  //处理上传主函数
   const upload = async (formData: FormData) => {
 
     let config = {
@@ -105,7 +116,6 @@ const Home: React.FC = () => {
   }
 
 
-
   const handleDragOver = e => {
     e.preventDefault()
     setIsDragged(true)
@@ -125,10 +135,33 @@ const Home: React.FC = () => {
     upload(formdata)
   }
 
-  const handleFileClick = e => {
-
+  const onRadioChange = e => {
+    learningType = e.target.value
   }
 
+  //处理文件单击回调
+  const handleFileClick = filename => {
+    const modalObj = {
+      title: `确认打开 ${filename} 文件？`,
+      content: (
+        <div>
+          <Radio.Group onChange={onRadioChange} defaultValue="reading">
+            <Radio.Button value="reading">阅读模式</Radio.Button>
+            <Radio.Button value="examing">考试模式</Radio.Button>
+            <Radio.Button value="testing">练习模式</Radio.Button>
+          </Radio.Group>
+        </div>
+      ),
+      onOk: () => {
+        history.push(`/toLearn/${learningType}`)
+        setOpenKeys(['toLearn'])
+        setSelectedKeys([`${learningType}`])
+      }
+    }
+    Modal.confirm(modalObj)
+  }
+
+  //处理文件双击回调
   const handleFileDoubleClick = (e, index) => {
     dispatch({
       type: 'DELETE_FILE',
@@ -300,7 +333,7 @@ const Home: React.FC = () => {
         <div className={s.dragBarLeft}>
           {
             state.fileName.map((item, index) => ( // 文件图标
-              <div className={s.sigleFile} key={index} onClick={handleFileClick} onDoubleClick={(event) => handleFileDoubleClick(event, index)} >
+              <div className={s.sigleFile} key={index} onClick={() => handleFileClick(item)} onDoubleClick={(event) => handleFileDoubleClick(event, index)} >
                 <Icon type="file-excel" style={{ color: "green", fontSize: 40 }} />
                 <span className={s.sigleFileName}>{item}</span>
               </div>
@@ -446,8 +479,8 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
             }
           >
             <Menu.Item key="reading" onClick={() => setSelectedKeys(['reading'])} >阅读模式</Menu.Item>
-            <Menu.Item key="words" onClick={() => setSelectedKeys(['words'])} >题库模式</Menu.Item>
-            <Menu.Item key="loading" onClick={() => setSelectedKeys(['loading'])} >导入题库</Menu.Item>
+            <Menu.Item key="examing" onClick={() => setSelectedKeys(['words'])} >考试模式</Menu.Item>
+            <Menu.Item key="testing" onClick={() => setSelectedKeys(['loading'])} >测试模式</Menu.Item>
           </SubMenu>
         </Menu>
       </Sider>
@@ -471,9 +504,14 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
         </Header>
         <Content>
           <Switch>
-            <Route path="/" exact component={Home} />
+            <Route path="/" exact render={props => {
+              return <Home {...props} setOpenKeys={setOpenKeys} setSelectedKeys={setSelectedKeys} />
+            }} />
             <Route path="/user/user" exact component={UserSetting} />
             <Route path="/user/progress" exact component={LearningProgress} />
+            <Route path="/toLearn/reading" exact component={LearningType} />
+            <Route path="/toLearn/examing" exact component={ExamingType} />
+            <Route path="/toLearn/testing" exact component={TestingType} />
           </Switch>
         </Content>
         {/* <Footer>Footer</Footer> */}
