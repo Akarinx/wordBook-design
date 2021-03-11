@@ -153,7 +153,7 @@ const Home: React.FC<IHomeProps> = (props) => {
         </div>
       ),
       onOk: () => {
-        history.push(`/toLearn/${learningType}`)
+        history.push(`/toLearn/${learningType}/${filename}`)
         setOpenKeys(['toLearn'])
         setSelectedKeys([`${learningType}`])
       }
@@ -509,9 +509,9 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
             }} />
             <Route path="/user/user" exact component={UserSetting} />
             <Route path="/user/progress" exact component={LearningProgress} />
-            <Route path="/toLearn/reading" exact component={LearningType} />
-            <Route path="/toLearn/examing" exact component={ExamingType} />
-            <Route path="/toLearn/testing" exact component={TestingType} />
+            <Route path="/toLearn/reading/:fileName" exact component={LearningType} />
+            <Route path="/toLearn/examing/:fileName" exact component={ExamingType} />
+            <Route path="/toLearn/testing/:fileName" exact component={TestingType} />
           </Switch>
         </Content>
         {/* <Footer>Footer</Footer> */}
