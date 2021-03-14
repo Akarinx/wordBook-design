@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useContext, useEffect } from 'react';
-import { Icon, Modal, PageHeader } from 'antd'
+import { Button, Icon, Modal, PageHeader, Pagination } from 'antd'
 import s from './ExamingType.module.scss'
 import axios from 'axios';
 import { context, IContext } from '@/store/reducer';
@@ -9,12 +9,22 @@ interface IExamingType {
   match: any;
   history: any
 }
+interface singleData {
+  key: number;
+  question: string;
+  answer: string;
+  optionA: string;
+  optionB: string;
+  optionC: string;
+  optionD?: string;
+}
 
 export const ExamingType: React.FC<IExamingType> = (props) => {
   const { state, dispatch } = useContext<IContext>(context)
   const { user } = state
   const { match, history } = props
-  const [data, setData] = useState([])
+  const [data, setData] = useState<singleData[]>([])
+  const [page, setPage] = useState(0)
   const filename = match.params.fileName
 
   useEffect(() => {
@@ -40,10 +50,42 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
     })()
   }, [])
 
+  const onOptionClick = (ans: {
+    key: number;
+    answer: string
+  }) => {
+    const { key, answer } = ans
+    dispatch({
+      type: "EDIT_ANSWER",
+      payload: {
+        key,
+        answer
+      }
+    })
+  }
+
+  const onNextPage = (page: number) => {
+    setPage(page)
+  }
+
+  const onFinish = () => {
+    const quesNum = Object.keys(state.answer).length
+    const modalObj = {
+      title: `题还没做完哦`,
+      content: `还有${data.length - quesNum}题没做,确定提交吗`,
+      onOk: () => {
+        history.push('/')
+      }
+    }
+    Modal.confirm(modalObj)
+  }
+
   const onBackClick = () => {
+    const quesNum = Object.keys(state.answer).length
+
     const modalObj = {
       title: `要休息一下吗`,
-      content: "还有5题没做",
+      content: `还有${data.length - quesNum}题没做`,
       onOk: () => {
         history.push('/')
       }
@@ -64,10 +106,111 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
             extra={<TimeCounter onTimeCounterClick={onBackClick} />}
           />
         </div>
+        <div className={s.body}>
+          {
+            data.slice(page, page + 1).map((item, index) => {
+              return (
+                <ExamingMain
+                  key={index}
+                  singleQuestion={item}
+                  total={data.length}
+                  onOptionClick={onOptionClick}
+                  onNextPage={onNextPage}
+                  onFinish={onFinish}
+                />)
+            })
+          }
+          <div className={s.pager}>
+            <Pagination
+              defaultCurrent={page + 1}
+              current={page + 1}
+              total={data.length}
+              defaultPageSize={1}
+              onChange={(page) => setPage(page - 1)} />
+          </div>
+        </div>
       </div>
     </div>
   )
 }
+
+interface IExamingMain {
+  singleQuestion: singleData;
+  total: number;
+  onOptionClick: (obj: {
+    key: number,
+    answer: string
+  }) => void;
+  onNextPage: (page: number) => void;
+  onFinish: () => void;
+}
+
+const ExamingMain: React.FC<IExamingMain> = (props) => {
+  const { singleQuestion, total, onOptionClick, onNextPage, onFinish } = props
+  const { key, question, answer, optionA, optionB, optionC, optionD } = singleQuestion
+  return (
+    <div className={s.examingMain}>
+      <div className={s.examingTitle}>
+        {
+          `${key + 1}/${total}`
+        }
+      </div>
+      <div className={s.examingBody}>
+        <div className={s.examingQuestion}>
+          {question}
+        </div>
+        <div className={s.examingOptions}>
+          <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'A' })} >
+            {optionA}
+          </Button>
+          <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'b' })} >
+            {optionB}
+          </Button>
+          <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'C' })} >
+            {optionC}
+          </Button>
+          {
+            optionD && (
+              <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'D' })} >
+                {optionD}
+              </Button>
+            )
+          }
+        </div>
+        <div className={s.examingHelp}>
+          <span className={s.examingHelpOption}>
+            <Icon type="bell" />
+            <span className={s.examHelper}>
+              收藏本题
+            </span>
+          </span>
+          <span className={s.examingHelpOption}>
+            <Icon type="global" />
+            <span className={s.examHelper}>
+              场外求助
+            </span>
+          </span>
+          <div className={s.examingPageChanger}>
+            {
+              key + 1 === total ? (
+                <Button type="danger" block={true} onClick={() => onNextPage(key + 1)} >
+                  提交答卷
+                </Button>
+              ) : (
+                <Button type="primary" block={true} onClick={() => onFinish()} >
+                  下一题
+                </Button>
+              )
+            }
+
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
 
 interface ITimeCounter {
   onTimeCounterClick: () => void

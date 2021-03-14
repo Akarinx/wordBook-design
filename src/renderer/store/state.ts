@@ -18,12 +18,18 @@ export interface USER {
   wordCount: [WORDCOUNT];
   wrongWordBook:[string]
 }
+
+export interface ANSWER {
+  key: number,
+  answer:string
+}
 export interface IInitstate {
   point: number;
   token: string | null;
   fileName: string[];
   todos: TODO[];
   user: USER;
+  answer:ANSWER | {}
 }
 
 let key = 0
@@ -44,6 +50,7 @@ export const initstate: IInitstate = {
       Counter:0
     }],
     wrongWordBook:['']
-  }
+  },
+  answer:{}
 }
 

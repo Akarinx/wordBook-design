@@ -76,6 +76,13 @@ export const reducer = (state: IInitstate, action: ActionType) => {
         }
       }
     }
+    case "EDIT_ANSWER": {
+      const { key, answer } = action.payload
+      state.answer[key] = answer
+      return {
+        ...state
+      }
+    }
     default:
       return state
   }

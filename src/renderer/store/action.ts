@@ -1,6 +1,6 @@
 
 
-import {USER} from './state'
+import {USER,ANSWER} from './state'
 export interface IAction<T, U> {
   type: T;
   payload: U;
@@ -17,5 +17,6 @@ type DeleteTodo = IAction<'DELETE_TODO', { key: number }>
 type AddSync = IAction<'ADDSYNC', any>
 type AddFilename = IAction<'ADD_FILENAME', [string]>
 type DelFile = IAction<'DELETE_FILE', number>
-type AddUser = IAction<'ADD_USER',USER>
-export type ActionType = Add | AddSync | AddFilename | ChangeTodoType | DeleteTodo | DelFile | AddUser
+type AddUser = IAction<'ADD_USER', USER>
+type EditAnswer = IAction<'EDIT_ANSWER',ANSWER>
+export type ActionType = Add | AddSync | AddFilename | ChangeTodoType | DeleteTodo | DelFile | AddUser | EditAnswer

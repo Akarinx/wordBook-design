@@ -14,6 +14,7 @@ import { getUserDetail, getUserFolder } from '@/requests'
 import LearningType from '../StudyType/LearningType';
 import ExamingType from '../StudyType/ExamingType';
 import TestingType from '../StudyType/TestingType';
+import Done from '../Done';
 const csv = require('csvtojson');
 interface IAppProps {
   history: any;
@@ -512,6 +513,7 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
             <Route path="/toLearn/reading/:fileName" exact component={LearningType} />
             <Route path="/toLearn/examing/:fileName" exact component={ExamingType} />
             <Route path="/toLearn/testing/:fileName" exact component={TestingType} />
+            <Route path="/toLearn/done/:fileName" exact component={Done} />
           </Switch>
         </Content>
         {/* <Footer>Footer</Footer> */}
