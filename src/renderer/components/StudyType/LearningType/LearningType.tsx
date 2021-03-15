@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useState, useEffect, useContext, useRef } from 'react';
 import Highlighter from 'react-highlight-words';
-import { Button, Icon, Input, Table } from 'antd'
+import { Button, Empty, Icon, Input, Table } from 'antd'
 import axios from 'axios';
 import s from './LearningType.module.scss';
 import { context, IContext } from '@/store/reducer';
@@ -14,15 +14,22 @@ export const LearningType: React.FC<ILearningType> = (props) => {
   const { state, dispatch } = useContext<IContext>(context)
   const { user } = state
   const { match } = props
-  const filename = match.params.fileName
+  let nowFile = match.params.fileName === 'null' && !state.nowFileName ? false : true
+  const filename = state.nowFileName ? state.nowFileName : match.params.fileName
   let searchInput = useRef<Input | null>()
   const [data, setData] = useState([])
   const [searchText, setSearchText] = useState('')
   const [searchedColumn, setSearchedColumn] = useState('')
 
   useEffect(() => {
+    console.log(nowFile)
+    nowFile && dispatch({
+      type: "ADD_NOWFILENAME",
+      payload: filename
+    })
+
     const questionsColumns: string[] = ['question', 'answer', 'optionA', 'optionB', 'optionC', 'optionD'];
-    (async () => {
+    nowFile && (async () => {
       let res = await axios.get(`http://localhost:3001/${user.userName}/${filename}`)
       let csvRow = await csv({
         output: "csv"
@@ -158,7 +165,18 @@ export const LearningType: React.FC<ILearningType> = (props) => {
   return (
     <div className={s.Wrapper}>
       <div className={s.main}>
-        <Table dataSource={data} columns={columns} size="middle" bordered={true} pagination={{ pageSize: 8, defaultPageSize: 8, hideOnSinglePage: true }} />
+        {
+          nowFile ? (
+            <>
+              <Table dataSource={data} columns={columns} size="middle" bordered={true} pagination={{ pageSize: 8, defaultPageSize: 8, hideOnSinglePage: true }} />
+            </>
+          ) : (
+            <div className={s.empty}>
+              <Empty />
+            </div>
+          )
+        }
+
       </div>
 
     </div>

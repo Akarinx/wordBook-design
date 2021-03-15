@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useContext, useEffect } from 'react';
-import { Button, Icon, Modal, PageHeader, Pagination } from 'antd'
+import { BrowserWindow, ipcRenderer, remote } from 'electron'
+import { Button, Empty, Icon, Modal, PageHeader, Pagination } from 'antd'
 import s from './ExamingType.module.scss'
 import axios from 'axios';
 import { context, IContext } from '@/store/reducer';
@@ -21,15 +22,39 @@ interface singleData {
 
 export const ExamingType: React.FC<IExamingType> = (props) => {
   const { state, dispatch } = useContext<IContext>(context)
-  const { user } = state
+  const { user, data } = state
   const { match, history } = props
-  const [data, setData] = useState<singleData[]>([])
   const [page, setPage] = useState(0)
-  const filename = match.params.fileName
+  let nowFile = match.params.fileName === 'null' && !state.nowFileName ? false : true
+  const filename = state.nowFileName ? state.nowFileName : match.params.fileName
 
   useEffect(() => {
+    console.log(nowFile)
+    nowFile && ipcRenderer.on('windowBlur', () => {
+      const browserWindow: BrowserWindow = remote.getCurrentWindow()
+      browserWindow.setAlwaysOnTop(true)
+      browserWindow.moveTop()
+      Modal.confirm({
+        title: `注意`,
+        content: `不要打开其他窗口,点击确定返回主页`,
+        onOk: () => {
+          history.push(`/`)
+          browserWindow.setAlwaysOnTop(false)
+        },
+        onCancel: () => {
+          browserWindow.setAlwaysOnTop(false)
+        }
+      })
+    })
+
+    nowFile && dispatch({
+      type: "ADD_NOWFILENAME",
+      payload: filename
+    })
+
+
     const questionsColumns: string[] = ['question', 'answer', 'optionA', 'optionB', 'optionC', 'optionD'];
-    (async () => {
+    nowFile && (async () => {
       let res = await axios.get(`http://localhost:3001/${user.userName}/${filename}`)
       let csvRow = await csv({
         output: "csv"
@@ -46,8 +71,14 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
         })
       }
       console.log(csvRow)
-      setData(csvRow)
+      dispatch({
+        type: "ADD_DATA",
+        payload: csvRow
+      })
     })()
+    return () => {
+      ipcRenderer.removeAllListeners('windowBlur')
+    }
   }, [])
 
   const onOptionClick = (ans: {
@@ -74,7 +105,7 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
       title: `题还没做完哦`,
       content: `还有${data.length - quesNum}题没做,确定提交吗`,
       onOk: () => {
-        history.push('/')
+        history.push(`/toLearn/done/${filename}`)
       }
     }
     Modal.confirm(modalObj)
@@ -95,40 +126,48 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
   return (
     <div className={s.Wrapper}>
       <div className={s.main}>
-        <div className={s.title}>
-          <PageHeader
-            style={{
-              borderBottom: '1px solid rgb(235, 237, 240)',
-            }}
-            backIcon={false}
-            title={`${filename.split('.')[0]}`}
-            subTitle="考试模式"
-            extra={<TimeCounter onTimeCounterClick={onBackClick} />}
-          />
-        </div>
-        <div className={s.body}>
-          {
-            data.slice(page, page + 1).map((item, index) => {
-              return (
-                <ExamingMain
-                  key={index}
-                  singleQuestion={item}
+        {
+          nowFile ? (<>
+            <div className={s.title}>
+              <PageHeader
+                style={{
+                  borderBottom: '1px solid rgb(235, 237, 240)',
+                }}
+                backIcon={false}
+                title={`${filename.split('.')[0]}`}
+                subTitle="考试模式"
+                extra={<TimeCounter onTimeCounterClick={onBackClick} />}
+              />
+            </div>
+            <div className={s.body}>
+              {
+                data.slice(page, page + 1).map((item, index) => {
+                  return (
+                    <ExamingMain
+                      key={index}
+                      singleQuestion={item}
+                      total={data.length}
+                      onOptionClick={onOptionClick}
+                      onNextPage={onNextPage}
+                      onFinish={onFinish}
+                    />)
+                })
+              }
+              <div className={s.pager}>
+                <Pagination
+                  defaultCurrent={page + 1}
+                  current={page + 1}
                   total={data.length}
-                  onOptionClick={onOptionClick}
-                  onNextPage={onNextPage}
-                  onFinish={onFinish}
-                />)
-            })
-          }
-          <div className={s.pager}>
-            <Pagination
-              defaultCurrent={page + 1}
-              current={page + 1}
-              total={data.length}
-              defaultPageSize={1}
-              onChange={(page) => setPage(page - 1)} />
-          </div>
-        </div>
+                  defaultPageSize={1}
+                  onChange={(page) => setPage(page - 1)} />
+              </div>
+            </div>
+          </>) : (<div className={s.Empty}>
+            <Empty />
+          </div>)
+
+        }
+
       </div>
     </div>
   )
@@ -163,7 +202,7 @@ const ExamingMain: React.FC<IExamingMain> = (props) => {
           <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'A' })} >
             {optionA}
           </Button>
-          <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'b' })} >
+          <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'B' })} >
             {optionB}
           </Button>
           <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'C' })} >
@@ -193,11 +232,11 @@ const ExamingMain: React.FC<IExamingMain> = (props) => {
           <div className={s.examingPageChanger}>
             {
               key + 1 === total ? (
-                <Button type="danger" block={true} onClick={() => onNextPage(key + 1)} >
+                <Button type="danger" block={true} onClick={() => onFinish()} >
                   提交答卷
                 </Button>
               ) : (
-                <Button type="primary" block={true} onClick={() => onFinish()} >
+                <Button type="primary" block={true} onClick={() => onNextPage(key + 1)} >
                   下一题
                 </Button>
               )

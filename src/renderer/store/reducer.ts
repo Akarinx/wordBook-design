@@ -83,6 +83,18 @@ export const reducer = (state: IInitstate, action: ActionType) => {
         ...state
       }
     }
+    case "ADD_DATA": {
+      return {
+        ...state,
+        data:action.payload
+      }
+    }
+    case "ADD_NOWFILENAME": {
+      return {
+        ...state,
+        nowFileName:action.payload
+      }
+      }
     default:
       return state
   }

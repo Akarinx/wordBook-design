@@ -1,7 +1,49 @@
-@import '../../../common.scss';
+@import '../../common.scss';
 .Wrapper{
   background-color: $bgc;
   width: 100%;
   height: 100%;
   margin:0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .main {
+    width: 80%;
+    height: 90%;
+    background-color: white;
+    margin: 0 auto;
+    padding-top: 20px;
+    box-shadow: 2px 4px 10px 0 rgba(0,0,0,0.2);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    .Top{
+      flex: 1.5;
+      display: flex;
+      justify-content: space-between;
+      margin: 0 50px;
+      .leftAnalyze{
+        flex: 0.5;
+        display: flex;
+        flex-direction: column;
+        .correctAns{
+          font-size: 16px;
+          margin-bottom: 20px;
+        }
+        .examFont{
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 20px;
+        }
+      }
+      .rightAnalyze{
+        flex: 1;
+      }
+    }
+    .Bottom{
+      flex: 1;
+      background-color: skyblue;
+    }
+    
+  }
 }

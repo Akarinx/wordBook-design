@@ -23,13 +23,26 @@ export interface ANSWER {
   key: number,
   answer:string
 }
+
+export interface singleData {
+  key: number;
+  question: string;
+  answer: string;
+  optionA: string;
+  optionB: string;
+  optionC: string;
+  optionD?: string;
+}
+
 export interface IInitstate {
   point: number;
   token: string | null;
   fileName: string[];
   todos: TODO[];
   user: USER;
-  answer:ANSWER | {}
+  data: singleData[];
+  answer: {}; // { '0'：'A','1':'B'}
+  nowFileName: string;
 }
 
 let key = 0
@@ -51,6 +64,8 @@ export const initstate: IInitstate = {
     }],
     wrongWordBook:['']
   },
-  answer:{}
+  answer: {},
+  data: [],
+  nowFileName:''
 }
 

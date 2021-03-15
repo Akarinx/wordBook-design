@@ -426,10 +426,13 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
     keyPath: Array<string>;
   }) => {
     const { keyPath } = props
-    console.log(keyPath)
-    const path = keyPath.reverse().reduce((prev, next) => {
+    let path = keyPath.reverse().reduce((prev, next) => {
       return prev + '/' + next
     })
+    if (keyPath[0] === 'toLearn') {
+      path = path + '/null'
+    }
+    console.log(path)
     history.push('/' + path)
   }, [])
 

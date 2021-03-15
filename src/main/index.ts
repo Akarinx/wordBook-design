@@ -106,9 +106,10 @@ function createMainWindow() {
   })
   window.on('closed', () => {
     console.log('ok')
-    localStorage.removeItem('beginTime')
-    localStorage.removeItem('dailyquote')
     mainWindow = null
+  })
+  window.on('blur', () => {
+    window.webContents.send('windowBlur')
   })
   mainWindow = window
 }
