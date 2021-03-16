@@ -42,7 +42,36 @@
     }
     .Bottom{
       flex: 1;
-      background-color: skyblue;
+      display: flex;
+      flex-direction: column;
+      .ques{
+        margin: 30px;
+        font-family: PingFangTC-Regular;
+        .quesMain{
+          display: flex;
+          flex-direction: column;
+          border-radius: 10px;
+          .q{
+            font-size: 20px;
+            font-weight: 600;
+            background-color: #f9f9f9;
+          }
+          .a{
+            background-color: #cec8c851;
+            padding: 10px;
+            .userAns{
+              font-size: 16px;
+            }
+            .showAns{
+              font-size: 18px;
+              .trueAns{
+                padding-left: 5px;
+                color:red
+              }
+            }
+          }
+        }
+      }
     }
     
   }

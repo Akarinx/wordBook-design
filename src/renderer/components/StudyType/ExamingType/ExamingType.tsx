@@ -27,9 +27,18 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
   const [page, setPage] = useState(0)
   let nowFile = match.params.fileName === 'null' && !state.nowFileName ? false : true
   const filename = state.nowFileName ? state.nowFileName : match.params.fileName
+  const { globalShortcut } = remote
 
+  //处理electron事件
   useEffect(() => {
-    console.log(nowFile)
+    nowFile && globalShortcut.register('Left', () => {
+      if (page !== 0) {
+        setPage(page - 1)
+      }
+    })
+    nowFile && globalShortcut.register('Right', () => {
+      setPage(page + 1)
+    })
     nowFile && ipcRenderer.on('windowBlur', () => {
       const browserWindow: BrowserWindow = remote.getCurrentWindow()
       browserWindow.setAlwaysOnTop(true)
@@ -46,13 +55,20 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
         }
       })
     })
+    return () => {
+      const { globalShortcut } = remote
+      ipcRenderer.removeAllListeners('windowBlur')
+      globalShortcut.unregister('Right')
+      globalShortcut.unregister('Left')
+    }
+  }, [page])
 
+  //处理文件内容
+  useEffect(() => {
     nowFile && dispatch({
       type: "ADD_NOWFILENAME",
       payload: filename
     })
-
-
     const questionsColumns: string[] = ['question', 'answer', 'optionA', 'optionB', 'optionC', 'optionD'];
     nowFile && (async () => {
       let res = await axios.get(`http://localhost:3001/${user.userName}/${filename}`)
@@ -76,9 +92,6 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
         payload: csvRow
       })
     })()
-    return () => {
-      ipcRenderer.removeAllListeners('windowBlur')
-    }
   }, [])
 
   const onOptionClick = (ans: {

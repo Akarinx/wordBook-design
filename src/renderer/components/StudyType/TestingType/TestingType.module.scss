@@ -1,7 +1,81 @@
-@import '../../common.scss';
+@import '../../../common.scss';
 .Wrapper{
   background-color: $bgc;
   width: 100%;
   height: 100%;
   margin:0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .main{
+    width: 90%;
+    height: 90%;
+    border-radius: 10px;
+    box-shadow: 2px 4px 10px 0 rgba(0,0,0,0.2);
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    .Empty{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .timeCounterWrapper{
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 400;
+      .timeCounter{
+        margin-left: 5px;
+      }
+    }
+    .pager{
+      display: flex;
+      justify-content: center;
+    }
+    .examingMain{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      .examingTitle{
+        padding: 15px;
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .examingBody{
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        padding-top: 0px;
+        .examingQuestion{
+          font-size: 16px;
+          line-height: 1.6;
+          margin-bottom: 20px;
+        }
+        .examingOptions{
+          display: flex;
+          flex-direction: column;
+        }
+        .examingHelp{
+          display: flex;
+          padding-top: 20px;
+          .examingHelpOption{
+            margin: 0 15px;
+            margin-top: 4px;
+            cursor: pointer;
+            .examingHelper{
+              font-size: 16px;
+            }
+          }
+          .examingPageChanger{
+            margin-left: auto;
+            justify-self: flex-end;
+          }
+        }
+      }
+      
+    }
+  }
 }

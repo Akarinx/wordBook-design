@@ -87,7 +87,7 @@ const UserSetting: React.FC<UserSettingProps> = () => {
       const learningTime = (h - Number(beginHours)) * 60 + min - Number(beginMinutes)
       setTimeCounter(learningTime)
     }
-
+    console.log('xieloul')
     t = setTimeout(time, 1000);
   }
 
@@ -98,6 +98,9 @@ const UserSetting: React.FC<UserSettingProps> = () => {
       var myChart = echarts.init(dom);
       const option = picType ? optionPie : optionLine;
       myChart.setOption(option);
+    }
+    return () => {
+      t && clearTimeout(t)
     }
   }, [picType])
 

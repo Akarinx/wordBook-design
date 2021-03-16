@@ -16,6 +16,8 @@ import ExamingType from '../StudyType/ExamingType';
 import TestingType from '../StudyType/TestingType';
 import Done from '../Done';
 const csv = require('csvtojson');
+const Store = require('electron-store')
+export const store = new Store({ name: localStorage.getItem('username') })
 interface IAppProps {
   history: any;
   location: any;
@@ -334,7 +336,7 @@ const Home: React.FC<IHomeProps> = (props) => {
         <div className={s.dragBarLeft}>
           {
             state.fileName.map((item, index) => ( // 文件图标
-              <div className={s.sigleFile} key={index} onClick={() => handleFileClick(item)} onDoubleClick={(event) => handleFileDoubleClick(event, index)} >
+              <div className={s.sigleFile} key={index} onClick={() => handleFileClick(item)} onContextMenu={(event) => handleFileDoubleClick(event, index)} >
                 <Icon type="file-excel" style={{ color: "green", fontSize: 40 }} />
                 <span className={s.sigleFileName}>{item}</span>
               </div>
@@ -373,7 +375,7 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
   const { Header, Sider, Content } = Layout
   const { SubMenu } = Menu
 
-  const countTime = (time: String) => {
+  const countTime = async (time: String) => {
     const date = new Date()
     const [beginHours, beginMinutes] = time.split(':')
     const currentHours = date.getHours()
@@ -383,11 +385,12 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
     const currentDay = date.getDay()
     const learningTime = (currentHours - Number(beginHours)) * 60 + currentMinutes - Number(beginMinutes)
     const DATE = currentYear + '-' + currentMonth + '-' + currentDay
-    axios.post('http://localhost:3001/api/postUserTime', {
+    await axios.post('http://localhost:3001/api/postUserTime', {
       username: localStorage.getItem('username'),
       date: DATE,
       time: learningTime
     })
+    localStorage.removeItem('beginTime')
   }
 
   const handleWinControl = useCallback((action: string) => {
@@ -409,10 +412,13 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
         setIsMaximized(!isMaximized)
         break;
       case 'close': {
-        browserWindow.hide()
         let beginTime = localStorage.getItem('beginTime')
-        if (beginTime)
+        if (beginTime) {
           countTime(beginTime)
+        }
+        setTimeout(() => {
+          browserWindow.destroy()
+        }, 500)
         break;
       }
 
@@ -467,9 +473,9 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
                 </span>
             }
           >
-            <Menu.Item key="user" onClick={() => setSelectedKeys(['user'])} >设置个人资料</Menu.Item>
-            <Menu.Item key="progress" onClick={() => setSelectedKeys(['progress'])} >学习进度</Menu.Item>
-            <Menu.Item key="logout" onClick={() => setSelectedKeys(['logout'])} >退出登陆</Menu.Item>
+            <Menu.Item key="user" onClick={() => setSelectedKeys(['user'])} >学习情况</Menu.Item>
+            <Menu.Item key="progress" onClick={() => setSelectedKeys(['progress'])} >单词本</Menu.Item>
+            <Menu.Item key="logout" onClick={() => setSelectedKeys(['logout'])} >错题本</Menu.Item>
             <Menu.Item key="setting" onClick={() => setSelectedKeys(['setting'])} >设置</Menu.Item>
           </SubMenu>
           <SubMenu

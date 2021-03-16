@@ -3,9 +3,9 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios'
 import { context, IContext } from '@/store/reducer';
 import s from './Done.module.scss'
-import { Icon } from 'antd';
+import { Button, Icon, Pagination } from 'antd';
 import * as echarts from 'echarts';
-
+import { store } from '@/components/App/App'
 const csv = require('csvtojson');
 
 interface singleData {
@@ -26,12 +26,13 @@ export const Done: React.FC<IDone> = (props) => {
   const { match } = props
   const { state, dispatch } = useContext<IContext>(context)
   const { user, data, answer } = state
+  const [page, setPage] = useState(0)
   const [correctAns, setCorrectAns] = useState(0)
   const [ansOptions, setAnsOptions] = useState({})
   const [userOptions, setUserOptions] = useState({})
   const filename = match.params.fileName
   const realAnswer = {}
-  let wrongAns: number[] = []
+  let wrongAns: singleData[] = []
   useEffect(() => {
     let ans = 0, ansObj = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 }, userObj = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 }
     data.forEach(item => {
@@ -45,12 +46,18 @@ export const Done: React.FC<IDone> = (props) => {
       if (realAnswer[i] === answer[i]) {
         ans++
       } else {
-        wrongAns.push(i)
+        wrongAns.push(data[i])
       }
     }
     setAnsOptions(ansObj)
     setUserOptions(userObj)
     setCorrectAns(ans)
+    if (store.get('wrongQues')) {
+      console.log(store.get('wrongQues'), 111)
+    } else {
+      store.set('wrongQues', wrongAns)
+      console.log(store.get('wrongQues'), 123)
+    }
 
   }, [])
 
@@ -126,7 +133,82 @@ export const Done: React.FC<IDone> = (props) => {
           </div>
         </div>
         <div className={s.Bottom}>
-          答案分析
+          <Pagination
+            style={{ alignSelf: "center" }}
+            defaultCurrent={page + 1}
+            current={page + 1}
+            total={data.length}
+            defaultPageSize={1}
+            onChange={(page) => setPage(page - 1)} />
+          <div className={s.ques}>
+            {
+              data.slice(page, page + 1).map((item, index) => {
+                return (
+                  <div className={s.quesMain} key={index}>
+                    <div className={s.q}>
+                      题目:{item.question}
+                    </div>
+                    <div className={s.a}>
+                      <div className={s.userAns}>
+                        正确答案:{item.answer} 你的答案:{answer[page] === undefined ? "无" : answer[page]}&nbsp;
+                        {
+                          item.answer !== answer[page] ? (
+                            <>
+                              <Button type="danger" style={{ cursor: "default" }}>错误</Button>
+                            </>) : (
+                            <>
+                              <Button type="primary" style={{ cursor: "default" }}>正确</Button>
+                            </>
+                          )
+
+                        }
+                      </div>
+                      <div className={s.showAns}>
+                        答案解析:
+                        <div className={s.trueAns}>
+                          {
+                            (() => {
+                              switch (item.answer) {
+                                case 'A':
+                                  return (
+                                    <>
+                                      {item.optionA}
+                                    </>
+                                  )
+                                case 'B':
+                                  return (
+                                    <>
+                                      {item.optionA}
+                                    </>
+                                  )
+                                case 'C':
+                                  return (
+                                    <>
+                                      {item.optionA}
+                                    </>
+                                  )
+                                case 'D':
+                                  return (
+                                    <>
+                                      {item.optionA}
+                                    </>
+                                  )
+                                default: return (
+                                  <>
+                                    空数据
+                                  </>
+                                )
+                              }
+                            })()
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            }
+          </div>
         </div>
       </div>
     </div>
