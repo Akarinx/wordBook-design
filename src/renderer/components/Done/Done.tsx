@@ -34,6 +34,11 @@ export const Done: React.FC<IDone> = (props) => {
   const realAnswer = {}
   let wrongAns: singleData[] = []
   useEffect(() => {
+    const date = new Date()
+    const currentYear = date.getFullYear()
+    const currentMonth = date.getMonth() + 1
+    const currentDay = date.getDay()
+    const DATE = currentYear + '-' + currentMonth + '-' + currentDay
     let ans = 0, ansObj = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 }, userObj = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 }
     data.forEach(item => {
       realAnswer[item.key] = item.answer
@@ -49,15 +54,21 @@ export const Done: React.FC<IDone> = (props) => {
         wrongAns.push(data[i])
       }
     }
+    axios.post('http://localhost:3001/api/postUserWords', {
+      username: localStorage.getItem('username'),
+      date: DATE,
+      Counter: wrongAns.length
+    })
+
     setAnsOptions(ansObj)
     setUserOptions(userObj)
     setCorrectAns(ans)
-    if (store.get('wrongQues')) {
-      console.log(store.get('wrongQues'), 111)
-    } else {
-      store.set('wrongQues', wrongAns)
-      console.log(store.get('wrongQues'), 123)
-    }
+    // if (store.get('wrongQues')) {
+    //   console.log(store.get('wrongQues'), 111)
+    // } else {
+    //   store.set('wrongQues', wrongAns)
+    //   console.log(store.get('wrongQues'), 123)
+    // }
 
   }, [])
 

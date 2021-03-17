@@ -474,8 +474,8 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
             }
           >
             <Menu.Item key="user" onClick={() => setSelectedKeys(['user'])} >学习情况</Menu.Item>
-            <Menu.Item key="progress" onClick={() => setSelectedKeys(['progress'])} >单词本</Menu.Item>
-            <Menu.Item key="logout" onClick={() => setSelectedKeys(['logout'])} >错题本</Menu.Item>
+            <Menu.Item key="wordBook" onClick={() => setSelectedKeys(['wordBook'])} >单词本</Menu.Item>
+            <Menu.Item key="wrongQues" onClick={() => setSelectedKeys(['wrongQues'])} >错题本</Menu.Item>
             <Menu.Item key="setting" onClick={() => setSelectedKeys(['setting'])} >设置</Menu.Item>
           </SubMenu>
           <SubMenu
@@ -518,7 +518,7 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
               return <Home {...props} setOpenKeys={setOpenKeys} setSelectedKeys={setSelectedKeys} />
             }} />
             <Route path="/user/user" exact component={UserSetting} />
-            <Route path="/user/progress" exact component={LearningProgress} />
+            <Route path="/user/wordBook" exact component={LearningProgress} />
             <Route path="/toLearn/reading/:fileName" exact component={LearningType} />
             <Route path="/toLearn/examing/:fileName" exact component={ExamingType} />
             <Route path="/toLearn/testing/:fileName" exact component={TestingType} />
