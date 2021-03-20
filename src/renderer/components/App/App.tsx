@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { context, IContext } from '@/store/reducer'
 import { Avatar, Badge, Button, Icon, Input, Layout, Menu, message, Statistic, Upload, Modal, Radio } from 'antd'
-import { BrowserWindow, remote } from 'electron'
+import { BrowserWindow, ipcRenderer, remote } from 'electron'
 import { match, Switch, Route } from 'react-router-dom'
 import s from "./App.module.scss"
 import classnames from 'classnames'
@@ -176,11 +176,11 @@ const Home: React.FC<IHomeProps> = (props) => {
   useEffect(() => {
     (async () => {
       let res
-      if (!localStorage.getItem('dailyquote') && !localStorage.getItem('dailyquoteTrans')) {
+      if (!store.get('dailyquote') && !store.get('dailyquoteTrans')) {
         try {
           res = await axios.get('http://localhost:3001/api/dailyquote')
-          localStorage.setItem('dailyquote', res.data.data.content)
-          localStorage.setItem('dailyquoteTrans', res.data.data.translation)
+          store.set('dailyquote', res.data.data.content)
+          store.set('dailyquoteTrans', res.data.data.translation)
         } catch (e) {
           res = {
             data: {
@@ -195,8 +195,8 @@ const Home: React.FC<IHomeProps> = (props) => {
         res = {
           data: {
             data: {
-              content: localStorage.getItem('dailyquote'),
-              translation: localStorage.getItem('dailyquoteTrans')
+              content: store.get('dailyquote'),
+              translation: store.get('dailyquoteTrans')
             }
           }
         }
@@ -233,11 +233,11 @@ const Home: React.FC<IHomeProps> = (props) => {
 
   //记录登录时间
   useEffect(() => {
-    if (!localStorage.getItem('beginTime')) {
+    if (!store.get('beginTime')) {
       const date = new Date();
       const current_hours = date.getHours();
       const current_minutes = date.getMinutes();
-      localStorage.setItem('beginTime', current_hours + ':' + current_minutes)
+      store.set('beginTime', current_hours + ':' + current_minutes)
     }
   }, [])
 
@@ -263,10 +263,16 @@ const Home: React.FC<IHomeProps> = (props) => {
         </div>
         <div className={s.userDetail}>
 
-          <div className={s.userHead}>
+          <div className={s.userHead}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleOnDrop}>
             <Badge count={5}>
-              <div onMouseEnter={useCallback(() => setUserheadHover(true), [])} onMouseLeave={useCallback(() => setUserheadHover(false), [])}>
-                <Avatar shape="square" size={70} icon="user" src={`http://localhost:3001/bb.png`} />   {/*todo: 按用户名查找对应路径文件 e.g.:localhost:3001/111/bb.png */}
+              <div
+                onMouseEnter={useCallback(() => setUserheadHover(true), [])}
+                onMouseLeave={useCallback(() => setUserheadHover(false), [])}
+              >
+                <Avatar shape="square" size={70} icon="user" src={`http://localhost:3001/${localStorage.getItem('username')}/Avatar.png`} />   {/*todo: 按用户名查找对应路径文件 e.g.:localhost:3001/111/bb.png */}
                 <CSSTransition in={userheadHover} classNames="hover" timeout={500} unmountOnExit >
                   <div className={s.userHeadHover}>
                     <span style={{ color: "white", fontSize: "10px" }} >拖拽上传头像</span>
@@ -327,12 +333,8 @@ const Home: React.FC<IHomeProps> = (props) => {
           </div>
         </div>
       </div>
-      <div className={classnames(s.dragBar, {
-        [s.dragOver]: isDragged
-      })}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleOnDrop} >
+      <div className={classnames(s.dragBar)}
+      >
         <div className={s.dragBarLeft}>
           {
             state.fileName.map((item, index) => ( // 文件图标
@@ -390,7 +392,7 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
       date: DATE,
       time: learningTime
     })
-    localStorage.removeItem('beginTime')
+    store.delete('beginTime')
   }
 
   const handleWinControl = useCallback((action: string) => {
@@ -398,6 +400,7 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
     switch (action) {
       case "minimize":
         browserWindow.minimize()
+        ipcRenderer.send('openSmallWindow')
         break
       case 'maximize':
         if (browserWindow.isMaximized()) {
@@ -412,10 +415,11 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
         setIsMaximized(!isMaximized)
         break;
       case 'close': {
-        let beginTime = localStorage.getItem('beginTime')
+        let beginTime = store.get('beginTime')
         if (beginTime) {
           countTime(beginTime)
         }
+        store.delete('dailyquote')
         setTimeout(() => {
           browserWindow.destroy()
         }, 500)
@@ -446,6 +450,26 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
     history.push('/')
     setOpenKeys([])
     setSelectedKeys([])
+  }, [])
+
+  useEffect(() => {
+    if (!store.get('wordStorage')) {
+      store.set('wordStorage', {
+        0: [],
+        1: [],
+        2: [],
+        3: []
+      })
+    }
+    if (store.get('sentenceStorage')) {
+      store.set('sentenceStorage', {
+        0: [],
+        1: [],
+        2: [],
+        3: []
+      })
+    }
+
   }, [])
 
   return (

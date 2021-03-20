@@ -1,0 +1,60 @@
+@import '../../common.scss';
+.Wrapper{
+  width: 100%;
+  height: 100%;
+  background-color: $bgc;
+  .main{
+    display: flex;
+    .user{
+      width: 50px;
+    }
+    .drag{
+      flex: 0 0 20px;
+      -webkit-app-region: drag;
+    }
+    .translation{
+      position: relative;
+      flex: 1;
+      line-height: 50px;
+      max-width: 420px;
+      white-space: nowrap;
+      overflow-x: scroll;
+      font-size: 16px;
+      .trans{
+        font-weight: 600;
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      }
+      .controllers{
+        position:absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 50px;
+        transition: all .5s;
+        .active{
+          color: orangered;
+        }
+      }
+      .hover{
+        opacity: 1;
+      }
+      .unHover{
+        opacity: 0;
+      }
+      &::-webkit-scrollbar{
+        display: none; 
+      }
+    }
+    .buttons{
+      padding-right: 5px;
+      flex:0 0 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: flex-end;
+    }
+  }
+}

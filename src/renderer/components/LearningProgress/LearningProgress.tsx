@@ -3,25 +3,36 @@ import { useState, useEffect } from 'react';
 import s from './LearningProgress.module.scss'
 import classnames from 'classnames'
 import { Card, Icon, Avatar } from 'antd';
+import { store } from '@/components/App/App'
 export interface LearningProgressProps {
 
 }
 
 export const LearningProgress: React.FC<LearningProgressProps> = () => {
   const { Meta } = Card;
-  const [data, setData] = useState({
-    0: ['a', 'b'],
-    1: ['c', 'd'],
-    2: ['e', 'f'],
-    3: ['g', 'h']
-  })
+  const [data, setData] = useState({ 0: [{ word: '', trans: '' }], 1: [{ word: '', trans: '' }], 2: [{ word: '', trans: '' }], 3: [{ word: '', trans: '' }] })
   const [type, setType] = useState(true) // true则为单词,false为句子
   const [dotNum, setDotNum] = useState(0) // 
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-
-  }, [])
+    let num = 0
+    if (type) {
+      const wordStorage = store.get('wordStorage')
+      Object.values(wordStorage).forEach((item: any) => {
+        num += item.length
+      })
+      setCount(num)
+      setData(wordStorage)
+    } else {
+      const sentenceStorage = store.get('sentenceStorage')
+      Object.values(sentenceStorage).forEach((item: any) => {
+        num += item.length
+      })
+      setCount(num)
+      setData(sentenceStorage)
+    }
+  }, [type])
 
   const changeType = (e) => {
     e.target.value === 'words' ? setType(true) : setType(false)
@@ -34,6 +45,22 @@ export const LearningProgress: React.FC<LearningProgressProps> = () => {
       if (dotNum === 3) return
       data[dotNum].splice(index, 1)
       data[dotNum + 1].push(word)
+      if (type) {
+        store.set('wordStorage', { ...data })
+      } else {
+        store.set('sentenceStorage', { ...data })
+      }
+      setData({ ...data })
+    }
+  }
+  const deleteWord = (word, index) => {
+    return () => {
+      data[dotNum].splice(index, 1)
+      if (type) {
+        store.set('wordStorage', { ...data })
+      } else {
+        store.set('sentenceStorage', { ...data })
+      }
       setData({ ...data })
     }
   }
@@ -81,13 +108,14 @@ export const LearningProgress: React.FC<LearningProgressProps> = () => {
                     style={{ width: 300, marginRight: "10px", float: "left" }}
                     actions={[
                       <Icon type="smile" key="smile" style={{ color: color[dotNum] }} />,
-                      <Icon type="forward" key="pushing" onClick={pushToNext(word, index)} />
+                      <Icon type="forward" key="pushing" onClick={pushToNext(word, index)} />,
+                      <Icon type="delete" key="delete" onClick={deleteWord(word, index)} />
                     ]}
                   >
                     <Meta
-                      avatar={<Avatar style={{ backgroundColor: color[dotNum] }} >{word}</Avatar>}
-                      title={word}
-                      description="This is the description"
+                      avatar={<Avatar style={{ backgroundColor: color[dotNum] }} >{word.word}</Avatar>}
+                      title={word.word}
+                      description={word.trans}
                     />
                   </Card>
                 )

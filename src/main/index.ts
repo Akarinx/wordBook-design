@@ -7,6 +7,7 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let loginWindow: BrowserWindow | null;
 let mainWindow: BrowserWindow | null;
+let smallWindow: BrowserWindow | null;
 let trayClose = false
 let iconPath: string
 let appTray: Tray | null
@@ -114,6 +115,51 @@ function createMainWindow() {
   mainWindow = window
 }
 
+// 创建小窗口
+function createSmallWindow() {
+  if (smallWindow) return
+  const window = new BrowserWindow({
+    show: true,
+    height: 52,
+    width: 502,
+    resizable:false,
+    useContentSize: true,
+    frame: false, // 无边框
+    transparent: true, // 透明
+    // fullscreen: true, // 全屏
+    webPreferences: {
+      nodeIntegration: true
+    },
+  })
+  if (isDevelopment) {
+    window.webContents.openDevTools();
+  }
+
+  if (isDevelopment) {
+    window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}/#smallWindow`);
+    window.setAlwaysOnTop(true)
+  } else {
+    window.loadURL(formatUrl({
+      pathname: path.join(__dirname, "index.html#smallWindow"),
+      protocol: "file",
+      slashes: true
+    }));
+  }
+  window.on('close', (event) => {
+    if (!trayClose) {
+      // 最小化
+      window.hide()
+      window.setSkipTaskbar(true)
+      event.preventDefault()
+    }
+  })
+  window.on('closed', () => {
+    console.log('ok')
+    smallWindow = null
+  })
+  smallWindow = window
+}
+
 //设置托盘菜单
 function createTray() {
   trayClose = false
@@ -201,10 +247,22 @@ if (!singleLog) {
     }
   })
 
+  ipcMain.on('openSmallWindow', () => {
+    if (!smallWindow) {
+      createSmallWindow()
+    }
+  })
+
   ipcMain.on('logout', () => {
     if (mainWindow) {
       mainWindow.destroy()
       createLoginWindow()
+    }
+  })
+  
+  ipcMain.on('openMainWindow', () => {
+    if (mainWindow) {
+      mainWindow.show()
     }
   })
 }

@@ -4,6 +4,7 @@ import * as echarts from 'echarts'
 import { useState, useEffect, useContext } from 'react';
 import s from './UserSetting.module.scss'
 import { context, IContext } from '@/store/reducer';
+import { store } from '@/components/App/App'
 export interface UserSettingProps {
 
 }
@@ -81,7 +82,7 @@ const UserSetting: React.FC<UserSettingProps> = () => {
     const dt = new Date()
     const h = dt.getHours()
     const min = dt.getMinutes()
-    const beginTime = localStorage.getItem('beginTime')
+    const beginTime = store.get('beginTime')
     if (beginTime) {
       const [beginHours, beginMinutes] = beginTime.split(':')
       const learningTime = (h - Number(beginHours)) * 60 + min - Number(beginMinutes)
@@ -112,7 +113,7 @@ const UserSetting: React.FC<UserSettingProps> = () => {
         </div>
         <div className={s.mainRight}>
           <div className={s.head}>
-            <Avatar size={100} icon="user" src={`http://localhost:3001/bb.png`} style={{ borderRadius: "50%" }} />
+            <Avatar size={100} icon="user" src={`http://localhost:3001/${localStorage.getItem('username')}/Avatar.png`} style={{ borderRadius: "50%" }} />
           </div>
           <h2 className={s.rightName} >Hi, {userName}</h2>
           <div className={s.checkinBox}>

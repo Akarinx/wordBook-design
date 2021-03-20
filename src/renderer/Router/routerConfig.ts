@@ -13,6 +13,11 @@ export const router: IRouter[] = [
     component: lazy(() => import('@/components/Login')),
   },
   {
+    path: '/smallWindow',
+    exact: true,
+    component:lazy(()=>import('@/components/smallWindow'))
+  },
+  {
     path: '/',
     component: lazy(() => import('@/components/App')),
     exact: false, //非严格模式，放在最后避免被优先匹配

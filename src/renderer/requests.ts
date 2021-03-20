@@ -31,3 +31,24 @@ export const getUserDetail = async () => {
   }
   return res.data.data[0]
 }
+
+export const getTranslate = async (text) => {
+  let res
+  try {
+    res = await axios.get('http://localhost:3001/api/getTranslate', {
+      params: {
+        text
+      },
+    })
+  } catch (e) {
+    res = {
+      data: {
+        data: {
+          src: text,
+          tgt:'无法连接互联网'
+        }
+      }
+    }
+  }
+  return res.data.data
+}
