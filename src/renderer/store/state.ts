@@ -21,7 +21,7 @@ export interface USER {
 
 export interface ANSWER {
   key: number,
-  answer:string
+  answer:'A' | 'B' | 'C' | 'D'
 }
 
 export interface singleData {
@@ -34,6 +34,10 @@ export interface singleData {
   optionD?: string;
 }
 
+export interface ANSWER_OBJ{
+  [key:number]:'A' | 'B' | 'C' | 'D'
+}
+
 export interface IInitstate {
   point: number;
   token: string | null;
@@ -41,7 +45,7 @@ export interface IInitstate {
   todos: TODO[];
   user: USER;
   data: singleData[];
-  answer: {}; // { '0'：'A','1':'B'}
+  answer: ANSWER_OBJ; // { '0'：'A','1':'B'}
   nowFileName: string;
 }
 

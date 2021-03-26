@@ -15,7 +15,7 @@ export const LearningType: React.FC<ILearningType> = (props) => {
   const { user } = state
   const { match } = props
   let nowFile = match.params.fileName === 'null' && !state.nowFileName ? false : true
-  const filename = state.nowFileName ? state.nowFileName : match.params.fileName
+  const filename = 'null' === match.params.fileName ? state.nowFileName : match.params.fileName
   let searchInput = useRef<Input | null>()
   const [data, setData] = useState([])
   const [searchText, setSearchText] = useState('')
@@ -30,10 +30,10 @@ export const LearningType: React.FC<ILearningType> = (props) => {
 
     const questionsColumns: string[] = ['question', 'answer', 'optionA', 'optionB', 'optionC', 'optionD'];
     nowFile && (async () => {
-      let res = await axios.get(`http://localhost:3001/${user.userName}/${filename}`)
+      let res = await axios.get(`http://localhost:3001/api/getUserFile?username=${user.userName}&filename=${filename}`)
       let csvRow = await csv({
         output: "csv"
-      }).fromString(res.data)
+      }).fromString(res.data.data)
       if (Array.isArray(csvRow)) {
         csvRow = csvRow.map((section, index) => {
           const obj = { key: index }
@@ -168,7 +168,7 @@ export const LearningType: React.FC<ILearningType> = (props) => {
         {
           nowFile ? (
             <>
-              <Table dataSource={data} columns={columns} size="middle" bordered={true} pagination={{ pageSize: 8, defaultPageSize: 8, hideOnSinglePage: true }} />
+              <Table dataSource={data} columns={columns} size="middle" bordered={true} pagination={{ pageSize: 5, defaultPageSize: 5, hideOnSinglePage: true }} />
             </>
           ) : (
             <div className={s.empty}>

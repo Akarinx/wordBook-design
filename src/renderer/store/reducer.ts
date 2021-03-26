@@ -46,9 +46,7 @@ export const reducer = (state: IInitstate, action: ActionType) => {
     }
     case "ADD_FILENAME": { // 添加文件
       let fileName = state.fileName
-      console.log(action.payload)
       fileName = action.payload
-      console.log(fileName,111)
       return {
         ...state,
         fileName
@@ -57,7 +55,6 @@ export const reducer = (state: IInitstate, action: ActionType) => {
     case "DELETE_FILE": { // 删除文件
       const fileName = state.fileName
       fileName.splice(action.payload, 1)
-      console.log(fileName)
       return {
         ...state,
         fileName
@@ -79,6 +76,12 @@ export const reducer = (state: IInitstate, action: ActionType) => {
     case "EDIT_ANSWER": {
       const { key, answer } = action.payload
       state.answer[key] = answer
+      return {
+        ...state
+      }
+    }
+    case "CLEAR_ANSWER": {
+      state.answer = {}
       return {
         ...state
       }

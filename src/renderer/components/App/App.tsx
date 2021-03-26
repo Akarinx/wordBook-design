@@ -41,6 +41,7 @@ const Home: React.FC<IHomeProps> = (props) => {
   const [userheadHover, setUserheadHover] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
   const [userSignature, setUserSignature] = useState('')
+  const [todoNum, setTodoNum] = useState(0)
   let learningType = 'reading'
 
   const upLoadProps = {
@@ -257,7 +258,7 @@ const Home: React.FC<IHomeProps> = (props) => {
       </div>
       <div className={s.middleBar}>
         <div className={s.userLearningStatus}> {/**todolist */}
-          <Todolist />
+          <Todolist setTodoNum={setTodoNum} />
           {/* <Empty description="" />
           <Button type="primary">Click here!</Button> */}
         </div>
@@ -267,7 +268,7 @@ const Home: React.FC<IHomeProps> = (props) => {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleOnDrop}>
-            <Badge count={5}>
+            <Badge count={todoNum}>
               <div
                 onMouseEnter={useCallback(() => setUserheadHover(true), [])}
                 onMouseLeave={useCallback(() => setUserheadHover(false), [])}
@@ -285,26 +286,16 @@ const Home: React.FC<IHomeProps> = (props) => {
           <div className={s.userSomething}>
             <div className={s.userActive}>
               <Statistic
-                title={"学习进度"}
-                value={11.28}
-                precision={2}
-                valueStyle={{ color: '#3f8600' }}
-                prefix={<Icon type="arrow-up" />}
-                suffix="%"
-              />
-              <Statistic
                 title={"总题数"}
-                value={11.28}
-                precision={2}
-                valueStyle={{ color: '#3f8600' }}
+                value={23}
+                valueStyle={{ color: '#ffa39e' }}
                 prefix={<Icon type="arrow-up" />}
                 suffix=""
               />
               <Statistic
                 title={"总单词数"}
-                value={11.28}
-                precision={2}
-                valueStyle={{ color: '#3f8600' }}
+                value={4}
+                valueStyle={{ color: '#ffa39e' }}
                 prefix={<Icon type="arrow-up" />}
                 suffix=""
               />
@@ -500,7 +491,6 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
             <Menu.Item key="user" onClick={() => setSelectedKeys(['user'])} >学习情况</Menu.Item>
             <Menu.Item key="wordBook" onClick={() => setSelectedKeys(['wordBook'])} >单词本</Menu.Item>
             <Menu.Item key="wrongQues" onClick={() => setSelectedKeys(['wrongQues'])} >错题本</Menu.Item>
-            <Menu.Item key="setting" onClick={() => setSelectedKeys(['setting'])} >设置</Menu.Item>
           </SubMenu>
           <SubMenu
             key="toLearn"
@@ -513,8 +503,8 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
             }
           >
             <Menu.Item key="reading" onClick={() => setSelectedKeys(['reading'])} >阅读模式</Menu.Item>
-            <Menu.Item key="examing" onClick={() => setSelectedKeys(['words'])} >考试模式</Menu.Item>
-            <Menu.Item key="testing" onClick={() => setSelectedKeys(['loading'])} >测试模式</Menu.Item>
+            <Menu.Item key="examing" onClick={() => setSelectedKeys(['exmaing'])} >考试模式</Menu.Item>
+            <Menu.Item key="testing" onClick={() => setSelectedKeys(['testing'])} >测试模式</Menu.Item>
           </SubMenu>
         </Menu>
       </Sider>

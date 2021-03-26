@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import s from './LearningProgress.module.scss'
 import classnames from 'classnames'
-import { Card, Icon, Avatar } from 'antd';
+import { Card, Icon, Avatar, Modal, Input } from 'antd';
 import { store } from '@/components/App/App'
 export interface LearningProgressProps {
 
@@ -12,8 +12,12 @@ export const LearningProgress: React.FC<LearningProgressProps> = () => {
   const { Meta } = Card;
   const [data, setData] = useState({ 0: [{ word: '', trans: '' }], 1: [{ word: '', trans: '' }], 2: [{ word: '', trans: '' }], 3: [{ word: '', trans: '' }] })
   const [type, setType] = useState(true) // true则为单词,false为句子
-  const [dotNum, setDotNum] = useState(0) // 
+  const [dotNum, setDotNum] = useState<0 | 1 | 2 | 3>(0) // 
   const [count, setCount] = useState(0)
+  const [modalShow, setModalShow] = useState(false)
+  const [nowWord, setNowWord] = useState({ word: '', trans: '' })
+  const [correctWriting, setCorrectWriting] = useState(false)
+  const input = useRef<Input>(null)
 
   useEffect(() => {
     let num = 0
@@ -64,8 +68,26 @@ export const LearningProgress: React.FC<LearningProgressProps> = () => {
       setData({ ...data })
     }
   }
+  const handleCardClick = word => {
+    setModalShow(true)
+    setNowWord(word)
+  }
+  const handleWriting = e => {
+    if (e.target.value === nowWord.word) {
+      setCorrectWriting(true)
+      setTimeout(() => {
+        setModalShow(false)
+        setCorrectWriting(false) // 复原
+        if (input.current) {
+          input.current.setValue('')
+        }
+      }, 500)
+    }
+  }
   return (
-    <div className={s.Wrapper}>
+    <div className={classnames(s.Wrapper, {
+      [s.filter]: modalShow
+    })}>
       <div className={s.backGround}>
         <div className={s.main}>
           <div className={s.above}>
@@ -104,6 +126,7 @@ export const LearningProgress: React.FC<LearningProgressProps> = () => {
                 const color = ['#cfcfcf', '#f19011', '#ffe82c', '#1bd126']
                 return (
                   <Card
+                    onClick={() => handleCardClick(word)}
                     key={index}
                     style={{ width: 300, marginRight: "10px", float: "left" }}
                     actions={[
@@ -124,6 +147,24 @@ export const LearningProgress: React.FC<LearningProgressProps> = () => {
           </div>
         </div>
       </div>
+      <Modal
+        footer={null}
+        title={"拼写练习"}
+        visible={modalShow}
+        onCancel={() => setModalShow(false)}
+      >
+        <>
+          <div style={{ paddingBottom: "10px", fontSize: "15px", color: "#333" }}>
+            翻译：{nowWord.trans}
+          </div>
+          <Input ref={input} onChange={e => handleWriting(e)} />
+          <span style={{ paddingTop: "10px", fontSize: "16px", fontWeight: 600, display: "block" }}>
+            {
+              correctWriting ? "拼写正确！" : "拼写还不正确，请继续尝试"
+            }
+          </span>
+        </>
+      </Modal>
 
     </div>);
 }

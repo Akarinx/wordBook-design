@@ -1,32 +1,24 @@
 import * as React from 'react';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { BrowserWindow, ipcRenderer, remote } from 'electron'
 import { Button, Empty, Icon, Modal, PageHeader, Pagination } from 'antd'
 import s from './ExamingType.module.scss'
 import axios from 'axios';
 import { context, IContext } from '@/store/reducer';
+import { singleData, ANSWER_OBJ, ANSWER } from '@/store/state'
 const csv = require('csvtojson');
 interface IExamingType {
   match: any;
   history: any
 }
-interface singleData {
-  key: number;
-  question: string;
-  answer: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD?: string;
-}
 
 export const ExamingType: React.FC<IExamingType> = (props) => {
   const { state, dispatch } = useContext<IContext>(context)
-  const { user, data } = state
+  const { user, data, answer } = state
   const { match, history } = props
   const [page, setPage] = useState(0)
   let nowFile = match.params.fileName === 'null' && !state.nowFileName ? false : true
-  const filename = state.nowFileName ? state.nowFileName : match.params.fileName
+  const filename = 'null' === match.params.fileName ? state.nowFileName : match.params.fileName
   const { globalShortcut } = remote
 
   //处理electron事件
@@ -71,10 +63,10 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
     })
     const questionsColumns: string[] = ['question', 'answer', 'optionA', 'optionB', 'optionC', 'optionD'];
     nowFile && (async () => {
-      let res = await axios.get(`http://localhost:3001/${user.userName}/${filename}`)
+      let res = await axios.get(`http://localhost:3001/api/getUserFile?username=${user.userName}&filename=${filename}`)
       let csvRow = await csv({
         output: "csv"
-      }).fromString(res.data)
+      }).fromString(res.data.data)
       if (Array.isArray(csvRow)) {
         csvRow = csvRow.map((section, index) => {
           const obj = { key: index }
@@ -94,10 +86,7 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
     })()
   }, [])
 
-  const onOptionClick = (ans: {
-    key: number;
-    answer: string
-  }) => {
+  const onOptionClick = (ans: ANSWER) => {
     const { key, answer } = ans
     dispatch({
       type: "EDIT_ANSWER",
@@ -114,13 +103,26 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
 
   const onFinish = () => {
     const quesNum = Object.keys(state.answer).length
-    const modalObj = {
-      title: `题还没做完哦`,
-      content: `还有${data.length - quesNum}题没做,确定提交吗`,
-      onOk: () => {
-        history.push(`/toLearn/done/${filename}`)
+    let quesNotDo = data.length - quesNum
+    let modalObj
+    if (quesNotDo === 0) {
+      modalObj = {
+        title: `已经全部做完了`,
+        content: `确定提交吗`,
+        onOk: () => {
+          history.push(`/toLearn/done/${filename}`)
+        }
+      }
+    } else {
+      modalObj = {
+        title: `题还没做完哦`,
+        content: `还有${quesNotDo}题没做,确定提交吗`,
+        onOk: () => {
+          history.push(`/toLearn/done/${filename}`)
+        }
       }
     }
+
     Modal.confirm(modalObj)
   }
 
@@ -163,6 +165,7 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
                       onOptionClick={onOptionClick}
                       onNextPage={onNextPage}
                       onFinish={onFinish}
+                      answer={answer}
                     />)
                 })
               }
@@ -189,17 +192,17 @@ export const ExamingType: React.FC<IExamingType> = (props) => {
 interface IExamingMain {
   singleQuestion: singleData;
   total: number;
-  onOptionClick: (obj: {
-    key: number,
-    answer: string
-  }) => void;
+  onOptionClick: (obj: ANSWER) => void;
   onNextPage: (page: number) => void;
   onFinish: () => void;
+  answer: ANSWER_OBJ;
 }
 
 const ExamingMain: React.FC<IExamingMain> = (props) => {
-  const { singleQuestion, total, onOptionClick, onNextPage, onFinish } = props
-  const { key, question, answer, optionA, optionB, optionC, optionD } = singleQuestion
+  const { singleQuestion, total, onOptionClick, onNextPage, onFinish, answer } = props
+  const { key, question, optionA, optionB, optionC, optionD } = singleQuestion
+  let options = [optionA, optionB, optionC, optionD]
+  let Ans: ['A', 'B', 'C', 'D'] = ['A', 'B', 'C', 'D']
   return (
     <div className={s.examingMain}>
       <div className={s.examingTitle}>
@@ -212,21 +215,32 @@ const ExamingMain: React.FC<IExamingMain> = (props) => {
           {question}
         </div>
         <div className={s.examingOptions}>
-          <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'A' })} >
-            {optionA}
-          </Button>
-          <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'B' })} >
-            {optionB}
-          </Button>
-          <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'C' })} >
-            {optionC}
-          </Button>
           {
-            optionD && (
-              <Button type="dashed" block={true} style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }} onClick={() => onOptionClick({ key, answer: 'D' })} >
-                {optionD}
-              </Button>
-            )
+            options.map((option, index) => {
+              if (option === undefined) return
+              if (answer[key] !== Ans[index]) {
+                return (
+                  <button
+                    className={s.antButton}
+                    key={index}
+                    style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px" }}
+                    onClick={() => onOptionClick({ key, answer: Ans[index] })} >
+                    {option}
+                  </button>
+                )
+              } else {
+                return (
+                  <button
+                    className={s.antButton}
+                    key={index}
+                    style={{ margin: "5px 0", textAlign: "left", fontSize: "16px", height: "35px", color: " #40a9ff", backgroundColor: "#fff", borderColor: "#40a9ff" }}
+                    onClick={() => onOptionClick({ key, answer: Ans[index] })} >
+                    {option}
+                  </button>
+                )
+              }
+
+            })
           }
         </div>
         <div className={s.examingHelp}>

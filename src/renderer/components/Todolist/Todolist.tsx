@@ -1,10 +1,10 @@
 import { Button, Collapse, Icon, Input, message, Steps, Tooltip } from 'antd';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { context, IContext } from '@/store/reducer'
 import classnames from 'classnames'
 import s from './Todolist.module.scss'
 export interface TodolistProps {
-
+  setTodoNum: any;
 }
 
 export interface TodoHeaderProps {
@@ -30,13 +30,17 @@ const type2current = {
   'finished': 2
 }
 
-export const Todolist: React.FC<TodolistProps> = () => {
+export const Todolist: React.FC<TodolistProps> = (props) => {
+  const { setTodoNum } = props
   const { state, dispatch } = useContext<IContext>(context)
   const { todos } = state
   const [nowType, setNowType] = useState<'todo' | 'pending' | 'finished' | ''>('')
   const input = useRef<Input>(null)
   const [activeArr, setActiveArr] = useState<number[]>([])
 
+  useEffect(() => {
+    setTodoNum(todos.length)
+  }, [todos.length])
 
 
   const handleCancel = (key: number) => {

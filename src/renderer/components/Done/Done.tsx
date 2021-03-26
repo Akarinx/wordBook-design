@@ -70,6 +70,13 @@ export const Done: React.FC<IDone> = (props) => {
     //   console.log(store.get('wrongQues'), 123)
     // }
 
+    return () => {
+      dispatch({
+        type: "CLEAR_ANSWER",
+        payload: ""
+      })
+    }
+
   }, [])
 
   useEffect(() => {
@@ -189,19 +196,19 @@ export const Done: React.FC<IDone> = (props) => {
                                 case 'B':
                                   return (
                                     <>
-                                      {item.optionA}
+                                      {item.optionB}
                                     </>
                                   )
                                 case 'C':
                                   return (
                                     <>
-                                      {item.optionA}
+                                      {item.optionC}
                                     </>
                                   )
                                 case 'D':
                                   return (
                                     <>
-                                      {item.optionA}
+                                      {item.optionD}
                                     </>
                                   )
                                 default: return (

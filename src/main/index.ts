@@ -73,9 +73,9 @@ function createMainWindow() {
   const window = new BrowserWindow({
     show: true,
     height: 700,
-    width: 1200,
-    minWidth: 1200,
-    minHeight: 600,
+    width: 1205,
+    minWidth: 1205,
+    minHeight: 700,
     useContentSize: true,
     frame: false, // 无边框
     transparent: true, // 透明

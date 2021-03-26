@@ -1,5 +1,5 @@
 import axios from 'axios'
-export const getUserFolder:()=>Promise<[string] | []> = async () => {
+export const getUserFolder:()=>Promise<string[]> = async () => {
   let res
   try {
     res = await axios.get('http://localhost:3001/api/getUserFolder', {

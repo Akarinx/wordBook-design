@@ -16,7 +16,7 @@ export const TestingType: React.FC<ITestingType> = (props) => {
   const { match, history } = props
   const [page, setPage] = useState(0)
   let nowFile = match.params.fileName === 'null' && !state.nowFileName ? false : true
-  const filename = state.nowFileName ? state.nowFileName : match.params.fileName
+  const filename = 'null' === match.params.fileName ? state.nowFileName : match.params.fileName
 
   useEffect(() => {
     console.log(nowFile)
@@ -29,10 +29,10 @@ export const TestingType: React.FC<ITestingType> = (props) => {
 
     const questionsColumns: string[] = ['question', 'answer', 'optionA', 'optionB', 'optionC', 'optionD'];
     nowFile && (async () => {
-      let res = await axios.get(`http://localhost:3001/${user.userName}/${filename}`)
+      let res = await axios.get(`http://localhost:3001/api/getUserFile?username=${user.userName}&filename=${filename}`)
       let csvRow = await csv({
         output: "csv"
-      }).fromString(res.data)
+      }).fromString(res.data.data)
       if (Array.isArray(csvRow)) {
         csvRow = csvRow.map((section, index) => {
           const obj = { key: index }
