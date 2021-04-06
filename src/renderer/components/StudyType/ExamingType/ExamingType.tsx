@@ -6,6 +6,7 @@ import s from './ExamingType.module.scss'
 import axios from 'axios';
 import { context, IContext } from '@/store/reducer';
 import { singleData, ANSWER_OBJ, ANSWER } from '@/store/state'
+import { store } from '@/components/App/App';
 const csv = require('csvtojson');
 interface IExamingType {
   match: any;
@@ -203,6 +204,11 @@ const ExamingMain: React.FC<IExamingMain> = (props) => {
   const { key, question, optionA, optionB, optionC, optionD } = singleQuestion
   let options = [optionA, optionB, optionC, optionD]
   let Ans: ['A', 'B', 'C', 'D'] = ['A', 'B', 'C', 'D']
+  const handleFavourite = () => {
+    let preFavoriteQues = store.get('favoriteQuestionBook')
+    preFavoriteQues.push(singleQuestion)
+    store.set('favoriteQuestionBook', preFavoriteQues)
+  }
   return (
     <div className={s.examingMain}>
       <div className={s.examingTitle}>
@@ -244,7 +250,7 @@ const ExamingMain: React.FC<IExamingMain> = (props) => {
           }
         </div>
         <div className={s.examingHelp}>
-          <span className={s.examingHelpOption}>
+          <span className={s.examingHelpOption} onClick={handleFavourite}>
             <Icon type="bell" />
             <span className={s.examHelper}>
               收藏本题
@@ -252,7 +258,7 @@ const ExamingMain: React.FC<IExamingMain> = (props) => {
           </span>
           <span className={s.examingHelpOption}>
             <Icon type="global" />
-            <span className={s.examHelper}>
+            <span className={s.examHelper} onClick={() => window.open(`https://www.baidu.com/s?ie=UTF-8&wd=${question}`)} >
               场外求助
             </span>
           </span>

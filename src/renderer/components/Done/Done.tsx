@@ -63,12 +63,10 @@ export const Done: React.FC<IDone> = (props) => {
     setAnsOptions(ansObj)
     setUserOptions(userObj)
     setCorrectAns(ans)
-    // if (store.get('wrongQues')) {
-    //   console.log(store.get('wrongQues'), 111)
-    // } else {
-    //   store.set('wrongQues', wrongAns)
-    //   console.log(store.get('wrongQues'), 123)
-    // }
+    let preWrongAns = store.get('wrongQuestionBook')
+    wrongAns = preWrongAns.concat(wrongAns)
+    store.set('wrongQuestionBook', wrongAns)
+    console.log(store.get('wrongQuestionBook'), 123)
 
     return () => {
       dispatch({

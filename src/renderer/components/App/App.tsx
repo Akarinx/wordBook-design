@@ -15,6 +15,7 @@ import LearningType from '../StudyType/LearningType';
 import ExamingType from '../StudyType/ExamingType';
 import TestingType from '../StudyType/TestingType';
 import Done from '../Done';
+import WrongQuestionBook from '../WrongQuestionBook';
 const csv = require('csvtojson');
 const Store = require('electron-store')
 export const store = new Store({ name: localStorage.getItem('username') })
@@ -177,6 +178,7 @@ const Home: React.FC<IHomeProps> = (props) => {
   useEffect(() => {
     (async () => {
       let res
+      console.log(store.get('dailyquote'), store.get('dailyquoteTrans'), 'abcDaily')
       if (!store.get('dailyquote') && !store.get('dailyquoteTrans')) {
         try {
           res = await axios.get('http://localhost:3001/api/dailyquote')
@@ -411,6 +413,7 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
           countTime(beginTime)
         }
         store.delete('dailyquote')
+        store.delete('dailyquoteTrans')
         setTimeout(() => {
           browserWindow.destroy()
         }, 500)
@@ -452,13 +455,19 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
         3: []
       })
     }
-    if (store.get('sentenceStorage')) {
+    if (!store.get('sentenceStorage')) {
       store.set('sentenceStorage', {
         0: [],
         1: [],
         2: [],
         3: []
       })
+    }
+    if (!store.get('wrongQuestionBook')) {
+      store.set('wrongQuestionBook', [])
+    }
+    if (!store.get('favoriteQuestionBook')) {
+      store.set('favoriteQuestionBook', [])
     }
 
   }, [])
@@ -533,6 +542,7 @@ export const App: React.FC<IAppProps> = (props: IAppProps) => {
             }} />
             <Route path="/user/user" exact component={UserSetting} />
             <Route path="/user/wordBook" exact component={LearningProgress} />
+            <Route path="/user/wrongQues" exact component={WrongQuestionBook} />
             <Route path="/toLearn/reading/:fileName" exact component={LearningType} />
             <Route path="/toLearn/examing/:fileName" exact component={ExamingType} />
             <Route path="/toLearn/testing/:fileName" exact component={TestingType} />
